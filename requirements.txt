@@ -1,0 +1,6 @@
+sqlalchemy
+pymysql
+asyncio
+aiomysql
+flask
+jinja2

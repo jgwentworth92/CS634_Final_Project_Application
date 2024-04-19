@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+ mysqldb:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h localhost -u user --password=password" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    restart: always
+    networks:
+      - mysql-phpmyadmin
+
+ app:
+    build: .
+    environment:
+      DATABASE_URL: mysql+pymysql://user:password@mysqldb:3306/mydatabase
+    ports:
+      - "8001:8001"
+    depends_on:
+      - mysqldb
+    networks:
+      - mysql-phpmyadmin
+
+ phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOST: mysqldb
+      MYSQL_ROOT_PASSWORD: password
+    depends_on:
+      - mysqldb
+    networks:
+      - mysql-phpmyadmin
+
+volumes:
+ db-data:
+
+networks:
+ mysql-phpmyadmin:
