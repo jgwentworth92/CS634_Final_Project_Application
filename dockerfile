@@ -10,6 +10,8 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Run the table creation script before starting the Flask server
+RUN chmod +x wait-for-it.sh
+
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
