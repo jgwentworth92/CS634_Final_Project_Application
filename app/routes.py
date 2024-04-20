@@ -1,7 +1,7 @@
 from flask import Blueprint
 
 from app.views import error_views, static_views
-from scripts.Database import db
+from app.Database import db
 
 
 bp = Blueprint('routes', __name__)

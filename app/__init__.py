@@ -4,7 +4,7 @@ from flask import Flask
 
 from app import routes
 # Third-party imports
-from scripts.Database import db, create_facility_tables, create_employee_tables, create_employee_sublcass_tables, \
+from app.Database import db, create_facility_tables, create_employee_tables, create_employee_sublcass_tables, \
     create_insurance_tables, create_treats_tables, create_patient_table, create_appointments_tables, \
     create_invoice_tables
 
