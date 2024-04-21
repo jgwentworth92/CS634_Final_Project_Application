@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}View Facilities{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Facility List</h1>
+
+    <!-- Section for Office facilities -->
+    <h2>Offices</h2>
+    {% if offices %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Facility ID</th>
+                <th>Address</th>
+                <th>Size</th>
+                <th>Office Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for office in offices %}
+            <tr>
+                <td>{{ office.facility_id }}</td>
+                <td>{{ office.address }}</td>
+                <td>{{ office.size }}</td>
+                <td>{{ office.office_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No office facilities found.</p>
+    {% endif %}
+
+    <!-- Section for Outpatient Surgery facilities -->
+    <h2>Outpatient Surgeries</h2>
+    {% if surgeries %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Facility ID</th>
+                <th>Address</th>
+                <th>Size</th>
+                <th>Room Count</th>
+                <th>Description</th>
+                <th>Procedure Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for surgery in surgeries %}
+            <tr>
+                <td>{{ surgery.facility_id }}</td>
+                <td>{{ surgery.address }}</td>
+                <td>{{ surgery.size }}</td>
+                <td>{{ surgery.room_count }}</td>
+                <td>{{ surgery.description }}</td>
+                <td>{{ surgery.p_code }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No outpatient surgery facilities found.</p>
+    {% endif %}
+
+</div>
+{% endblock %}
