@@ -1,6 +1,6 @@
 
 
-from app.crud import create_employee, get_all_facility, retrieve_all_employees
+from app.crud import create_employee, get_all_facility, retrieve_all_employees, retrieve_facilities
 from app.forms import DoctorForm, NurseForm, AdminForm, OtherHCPForm
 from app.Database import db
 from icecream import ic
@@ -58,7 +58,6 @@ def add_employee(job_class='Doctor'):
 def view_employees():
     # Retrieve all employees
     all_employees = retrieve_all_employees(db.get_db())
-
     # Organize employees by job class
     employees_grouped = {}
     for emp in all_employees:
