@@ -51,3 +51,7 @@ class OutpatientSurgery(Facility):
     room_count: int
     description: str
     p_code: str
+class InsuranceCompany(BaseModel):
+    insurance_id: Optional[int] = None  # Auto-incremented by the database, optional in the model
+    name: str
+    address: str
