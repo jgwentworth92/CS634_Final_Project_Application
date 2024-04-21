@@ -35,3 +35,19 @@ class Admin(EmployeeModel):
 class OtherHCP(EmployeeModel):
     empid: int
     job_title: str
+from pydantic import BaseModel
+from typing import Optional
+
+class Facility(BaseModel):
+    address: str
+    size: int
+    ftype: str
+    facility_id: Optional[int] = None
+
+class Office(Facility):
+    office_count: int
+
+class OutpatientSurgery(Facility):
+    room_count: int
+    description: str
+    p_code: str
