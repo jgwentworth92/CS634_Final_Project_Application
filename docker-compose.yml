@@ -30,6 +30,8 @@ services:
     depends_on:
        mysqldb:
         condition: service_healthy
+    volumes:
+      - ./:/app/
 
     networks:
       - mysql-phpmyadmin
