@@ -48,8 +48,22 @@ def add_employee(job_class='Doctor'):
             # Create employee in the database
             create_employee(db.get_db(), employee_data, subclass_data)
             flash(f'{job_class} has been successfully added.', 'success')
-            return redirect(url_for('routes.index'))
+            return redirect(url_for('routes.view_employees'))
         except Exception as e:
             flash("AYYYYE SOMETHING BROKE MY DUDE!!!!!!!!", 'error')
 
     return render_template('add.html', form=form, job_class=job_class)
+
+
+def view_employees():
+    # Retrieve all employees
+    all_employees = retrieve_all_employees(db.get_db())
+
+    # Organize employees by job class
+    employees_grouped = {}
+    for emp in all_employees:
+        if emp.job_class.value not in employees_grouped:
+            employees_grouped[emp.job_class.value] = []
+        employees_grouped[emp.job_class.value].append(emp)
+
+    return render_template('view_employee.html', employees_grouped=employees_grouped)
