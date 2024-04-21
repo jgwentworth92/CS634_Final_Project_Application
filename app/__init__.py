@@ -23,7 +23,7 @@ def create_app():
     app.config['SECRET_KEY'] = 'your_really_secret_key_here'
     db_manager.connect()
     session = db.get_db()
-    """
+
     create_facility_tables(session)
     create_employee_tables(session)
     create_employee_sublcass_tables(session)
@@ -32,7 +32,7 @@ def create_app():
     create_treats_tables(session)
     create_appointments_tables(session)
     create_invoice_tables(session)
-    """
+
 
     bootstrap = Bootstrap5(app)
     app.register_blueprint(routes.bp)
