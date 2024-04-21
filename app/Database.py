@@ -61,7 +61,7 @@ def create_facility_tables(session):
             facility_id INT AUTO_INCREMENT,
             address VARCHAR(255),
             size INT,
-            ftype VARCHAR(100),
+            ftype ENUM('Office', 'OutpatientSurgery'),
             PRIMARY KEY (facility_id)
         );
         """,
@@ -135,19 +135,21 @@ def create_employee_sublcass_tables(session):
 
 def create_employee_tables(session):
     sql_query = text("""
-    CREATE TABLE IF NOT EXISTS Employee (
-        EMPID INT NOT NULL,
-        SSN INT NOT NULL,
-        fname VARCHAR(255),
-        lname VARCHAR(255),
-        salary DECIMAL(10, 2),
-        hire_date DATE,
-        job_class ENUM('OtherHCP', 'Nurse', 'Admin', 'Doctor'),  
-        address VARCHAR(255),
-        facility_id INT,
-        PRIMARY KEY (EMPID, SSN),
-        FOREIGN KEY (facility_id) REFERENCES Facility(facility_id)   
-    );
+  CREATE TABLE IF NOT EXISTS Employee (
+    EMPID INT AUTO_INCREMENT,
+    SSN INT NOT NULL,
+    fname VARCHAR(255),
+    lname VARCHAR(255),
+    salary DECIMAL(10, 2),
+    hire_date DATE,
+    job_class ENUM('OtherHCP', 'Nurse', 'Admin', 'Doctor'),
+    address VARCHAR(255),
+    facility_id INT,
+    PRIMARY KEY (EMPID, SSN),
+    UNIQUE (SSN),
+    FOREIGN KEY (facility_id) REFERENCES Facility(facility_id)
+);
+
     """)
 
     session.execute(sql_query)
