@@ -23,8 +23,15 @@ def create_employee(session, employee_data, subclass_data):
         session.execute(employee_insert, employee_data)
         session.commit()
 
-        # Fetch the last inserted EMPID
-        empid = session.execute(text("SELECT LAST_INSERT_ID();")).scalar()
+        # Execute the query to get the last inserted EMPID
+        empid_query = session.execute(text("SELECT LAST_INSERT_ID();"))
+        empid = None
+        for row in empid_query:
+            empid = row[0]  # Access the first column of the first row
+            break  # Break after the first row to mimic fetchone behavior
+
+        if empid is None:
+            raise Exception("Failed to fetch the new employee ID.")
 
         # Prepare subclass-specific insert statement based on job_class
         if employee_data['job_class'] == 'Doctor':
@@ -50,7 +57,6 @@ def create_employee(session, employee_data, subclass_data):
         else:
             return empid  # If no subclass, just return the EMPID
 
-        # Add subclass-specific data and execute insertion
         subclass_data['empid'] = empid  # Include the EMPID in subclass data for insertion
         session.execute(subclass_insert, subclass_data)
         session.commit()
@@ -71,65 +77,44 @@ def retrieve_all_employees(session):
             SELECT EMPID, SSN, fname, lname, salary, hire_date, job_class, address, facility_id
             FROM Employee;
         """)
-        employees = session.execute(employee_query).fetchall()
+        employee_result = session.execute(employee_query)
 
         result_list = []
 
-        # Process each tuple representing an employee
-        for emp in employees:
-            emp_obj = None
+        # Process each row as a tuple
+        for emp in employee_result:
             emp_data = {
-                'empid': emp[0], 'ssn': emp[1], 'fname': emp[2],
-                'lname': emp[3], 'salary': float(emp[4]), 'hire_date': emp[5],
-                'job_class': emp[6], 'address': emp[7], 'facility_id': emp[8]
+                'empid': emp[0],  # EMPID
+                'ssn': emp[1],    # SSN
+                'fname': emp[2],  # First Name
+                'lname': emp[3],  # Last Name
+                'salary': float(emp[4]),  # Salary
+                'hire_date': emp[5],  # Hire Date
+                'job_class': emp[6],  # Job Class
+                'address': emp[7],  # Address
+                'facility_id': emp[8]  # Facility ID
             }
 
             if emp[6] == JobClass.doctor.value:
-                doctor_query = text("""
-                    SELECT speciality, bc_date 
-                    FROM Doctor WHERE EMPID = :empid
-                """)
-                doctor_data = session.execute(doctor_query, {'empid': emp[0]}).fetchone()
-                if doctor_data:
-                    emp_obj = Doctor(
-                        speciality=doctor_data[0], bc_date=doctor_data[1], **emp_data
-                    )
-            elif emp[6] == JobClass.nurse.value:
-                nurse_query = text("""
-                    SELECT certification 
-                    FROM Nurse WHERE EMPID = :empid
-                """)
-                nurse_data = session.execute(nurse_query, {'empid': emp[0]}).fetchone()
-                if nurse_data:
-                    emp_obj = Nurse(
-                        certification=nurse_data[0], **emp_data
-                    )
-            elif emp[6] == JobClass.admin.value:
-                admin_query = text("""
-                    SELECT job_title 
-                    FROM Admin WHERE EMPID = :empid
-                """)
-                admin_data = session.execute(admin_query, {'empid': emp[0]}).fetchone()
-                if admin_data:
-                    emp_obj = Admin(
-                        job_title=admin_data[0], **emp_data
-                    )
-            elif emp[6] == JobClass.otherhcp.value:
-                otherhcp_query = text("""
-                    SELECT job_title 
-                    FROM OtherHCP WHERE EMPID = :empid
-                """)
-                otherhcp_data = session.execute(otherhcp_query, {'empid': emp[0]}).fetchone()
-                if otherhcp_data:
-                    emp_obj = OtherHCP(
-                        job_title=otherhcp_data[0], **emp_data
-                    )
-            else:
-                continue  # Skip if the job class is not recognized
+                doctor_query = text("SELECT speciality, bc_date FROM Doctor WHERE EMPID = :empid")
+                for doctor in session.execute(doctor_query, {'empid': emp[0]}):
+                    result_list.append(Doctor(speciality=doctor[0], bc_date=doctor[1], **emp_data))
 
-            result_list.append(emp_obj)
-        for value in result_list:
-            ic(f"return values:{value}")
+            elif emp[6] == JobClass.nurse.value:
+                nurse_query = text("SELECT certification FROM Nurse WHERE EMPID = :empid")
+                for nurse in session.execute(nurse_query, {'empid': emp[0]}):
+                    result_list.append(Nurse(certification=nurse[0], **emp_data))
+
+            elif emp[6] == JobClass.admin.value:
+                admin_query = text("SELECT job_title FROM Admin WHERE EMPID = :empid")
+                for admin in session.execute(admin_query, {'empid': emp[0]}):
+                    result_list.append(Admin(job_title=admin[0], **emp_data))
+
+            elif emp[6] == JobClass.otherhcp.value:
+                otherhcp_query = text("SELECT job_title FROM OtherHCP WHERE EMPID = :empid")
+                for otherhcp in session.execute(otherhcp_query, {'empid': emp[0]}):
+                    result_list.append(OtherHCP(job_title=otherhcp[0], **emp_data))
+
         return result_list
 
     except SQLAlchemyError as e:
@@ -177,7 +162,7 @@ def get_insurance_company_by_id(session, insurance_id):
     try:
         # Prepare the SQL query using text() for safe parameter binding
         query = text("SELECT insurance_id, name, address FROM InsuranceCompany WHERE insurance_id = :id")
-        result = session.execute(query, {'id': insurance_id}).fetchone()
+        result = session.execute(query, {'id': insurance_id})
 
         if result is None:
             return None  # Return None if no insurance company is found
@@ -233,9 +218,18 @@ def create_facility(session, facility_data, subtype_data):
             VALUES (:address, :size, :ftype);
         """)
         session.execute(facility_insert, facility_data)
+        session.commit()
 
-        # Get the last inserted facility_id
-        facility_id = session.execute(text("SELECT LAST_INSERT_ID();"))
+        # Execute the query to get the last inserted facility_id
+        facility_id_query = session.execute(text("SELECT LAST_INSERT_ID();"))
+        facility_id = None
+        for row in facility_id_query:
+            facility_id = row[0]  # Access the first column of the first row
+            break  # Only need the first result
+
+        if facility_id is None:
+            raise Exception("Failed to fetch the new facility ID.")
+
         # Check facility type and insert into the corresponding subtype table
         if facility_data['ftype'] == 'Office':
             office_insert = text("""
@@ -244,6 +238,7 @@ def create_facility(session, facility_data, subtype_data):
             """)
             subtype_data['facility_id'] = facility_id
             session.execute(office_insert, subtype_data)
+
         elif facility_data['ftype'] == 'OutpatientSurgery':
             surgery_insert = text("""
                 INSERT INTO OutpatientSurgery (facility_id, room_count, description, p_code)
@@ -251,11 +246,12 @@ def create_facility(session, facility_data, subtype_data):
             """)
             subtype_data['facility_id'] = facility_id
             session.execute(surgery_insert, subtype_data)
+
         else:
             raise ValueError("Invalid facility type")
 
-        # Commit the transaction
         session.commit()
+
     except SQLAlchemyError as e:
         session.rollback()  # Roll back the transaction on error
         raise Exception(f"Database operation failed: {str(e)}")
@@ -264,8 +260,6 @@ def create_facility(session, facility_data, subtype_data):
         raise Exception(f"An error occurred: {str(e)}")
 
 
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
 
 
 def retrieve_facilities(session):
