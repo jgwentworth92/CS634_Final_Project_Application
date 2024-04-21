@@ -30,3 +30,4 @@ bp.add_url_rule("/add_employee/<job_class>", view_func=employee.add_employee, me
 bp.add_url_rule('/add_facility/<ftype>',view_func=facility.add_facility, methods=['GET', 'POST'])
 bp.add_url_rule('/add_insurance_company',view_func=insurance_companies.add_insurance_company, methods=['GET', 'POST'])
 bp.add_url_rule("/view_employees",view_func=employee.view_employees,methods=['GET', 'POST'])
+bp.add_url_rule('/view_facility',view_func=facility.view_facilities, methods=['GET', 'POST'])
