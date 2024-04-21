@@ -3,7 +3,6 @@ from icecream import ic
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.schemas import EmployeeModel, JobClass, Doctor, Nurse, Admin, OtherHCP
@@ -59,8 +58,11 @@ def create_employee(session, employee_data, subclass_data):
     except Exception as e:
         session.rollback()
         raise Exception(f"An error occurred: {str(e)}")
+
+
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
+
 
 def retrieve_all_employees(session):
     try:
@@ -72,57 +74,76 @@ def retrieve_all_employees(session):
 
         result_list = []
 
+        # Process each tuple representing an employee
         for emp in employees:
+            emp_obj = None
             emp_data = {
-                'ssn': emp.SSN,
-                'fname': emp.fname,
-                'lname': emp.lname,
-                'salary': emp.salary,
-                'hire_date': emp.hire_date,
-                'job_class': emp.job_class,
-                'address': emp.address,
-                'facility_id': emp.facility_id
+                'empid': emp[0], 'ssn': emp[1], 'fname': emp[2],
+                'lname': emp[3], 'salary': float(emp[4]), 'hire_date': emp[5],
+                'job_class': emp[6], 'address': emp[7], 'facility_id': emp[8]
             }
-            emp_obj = EmployeeModel(**emp_data)
-            subclass_data = {}
 
-            if emp.job_class == JobClass.doctor.value:
-                doctor_data = session.execute(text("SELECT speciality, bc_date FROM Doctor WHERE EMPID = :empid"), {'empid': emp.EMPID}).fetchone()
+            if emp[6] == JobClass.doctor.value:
+                doctor_query = text("""
+                    SELECT speciality, bc_date 
+                    FROM Doctor WHERE EMPID = :empid
+                """)
+                doctor_data = session.execute(doctor_query, {'empid': emp[0]}).fetchone()
                 if doctor_data:
-                    subclass_data = {'empid': emp.EMPID, 'speciality': doctor_data.speciality, 'bc_date': doctor_data.bc_date}
-                    emp_obj.subclass = Doctor(**subclass_data)
-            elif emp.job_class == JobClass.nurse.value:
-                nurse_data = session.execute(text("SELECT certification FROM Nurse WHERE EMPID = :empid"), {'empid': emp.EMPID}).fetchone()
+                    emp_obj = Doctor(
+                        speciality=doctor_data[0], bc_date=doctor_data[1], **emp_data
+                    )
+            elif emp[6] == JobClass.nurse.value:
+                nurse_query = text("""
+                    SELECT certification 
+                    FROM Nurse WHERE EMPID = :empid
+                """)
+                nurse_data = session.execute(nurse_query, {'empid': emp[0]}).fetchone()
                 if nurse_data:
-                    subclass_data = {'empid': emp.EMPID, 'certification': nurse_data.certification}
-                    emp_obj.subclass = Nurse(**subclass_data)
-            elif emp.job_class == JobClass.admin.value:
-                admin_data = session.execute(text("SELECT job_title FROM Admin WHERE EMPID = :empid"), {'empid': emp.EMPID}).fetchone()
+                    emp_obj = Nurse(
+                        certification=nurse_data[0], **emp_data
+                    )
+            elif emp[6] == JobClass.admin.value:
+                admin_query = text("""
+                    SELECT job_title 
+                    FROM Admin WHERE EMPID = :empid
+                """)
+                admin_data = session.execute(admin_query, {'empid': emp[0]}).fetchone()
                 if admin_data:
-                    subclass_data = {'empid': emp.EMPID, 'job_title': admin_data.job_title}
-                    emp_obj.subclass = Admin(**subclass_data)
-            elif emp.job_class == JobClass.otherhcp.value:
-                otherhcp_data = session.execute(text("SELECT job_title FROM OtherHCP WHERE EMPID = :empid"), {'empid': emp.EMPID}).fetchone()
+                    emp_obj = Admin(
+                        job_title=admin_data[0], **emp_data
+                    )
+            elif emp[6] == JobClass.otherhcp.value:
+                otherhcp_query = text("""
+                    SELECT job_title 
+                    FROM OtherHCP WHERE EMPID = :empid
+                """)
+                otherhcp_data = session.execute(otherhcp_query, {'empid': emp[0]}).fetchone()
                 if otherhcp_data:
-                    subclass_data = {'empid': emp.EMPID, 'job_title': otherhcp_data.job_title}
-                    emp_obj.subclass = OtherHCP(**subclass_data)
+                    emp_obj = OtherHCP(
+                        job_title=otherhcp_data[0], **emp_data
+                    )
+            else:
+                continue  # Skip if the job class is not recognized
 
             result_list.append(emp_obj)
-        ic(f'return data{result_list}')
+        for value in result_list:
+            ic(f"return values:{value}")
         return result_list
 
     except SQLAlchemyError as e:
         session.rollback()
         raise Exception(f"Database operation failed: {str(e)}")
 
-def create_insurance_company(session,insurance_data):
+
+def create_insurance_company(session, insurance_data):
     try:
 
         insurance_insert = text("""
              INSERT INTO InsuranceCompany (name,address)
              VALUES (:name,:address);
                             """)
-        session.execute(insurance_insert,insurance_data)
+        session.execute(insurance_insert, insurance_data)
         session.commit()
     except SQLAlchemyError as e:
         session.rollback()  # Roll back the transaction on error
@@ -130,7 +151,6 @@ def create_insurance_company(session,insurance_data):
     except Exception as e:
         session.rollback()
         raise Exception(f"An error occurred: {str(e)}")
-
 
 
 def get_employee(session, empid):
@@ -153,16 +173,17 @@ def delete_employee(session, empid):
     session.execute(delete_query, {'empid': empid})
     session.commit()
 
+
 def get_all_facility(session):
     query = text("SELECT facility_id, ftype FROM Facility")
     result = session.execute(query)
-    rtn_list=[]
+    rtn_list = []
     for value in result:
         ic("--- Summary Content Start ---")
         ic(value)
         rtn_list.append(value)
         ic("---Summary Content End ---\n")
-    ic( rtn_list)
+    ic(rtn_list)
     return rtn_list
 
 
