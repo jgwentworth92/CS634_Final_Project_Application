@@ -19,19 +19,19 @@ class EmployeeModel(BaseModel):
     address: str
     facility_id: int
 
-class Doctor(BaseModel):
+class Doctor(EmployeeModel):
     empid: int
     speciality: str
     bc_date: date
 
-class Nurse(BaseModel):
+class Nurse(EmployeeModel):
     empid: int
     certification: str
 
-class Admin(BaseModel):
+class Admin(EmployeeModel):
     empid: int
     job_title: str
 
-class OtherHCP(BaseModel):
+class OtherHCP(EmployeeModel):
     empid: int
     job_title: str
