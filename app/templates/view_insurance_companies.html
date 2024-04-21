@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Insurance Companies{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Insurance Companies</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Address</th>
+                 <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for company in insurance_companies %}
+            <tr>
+                <td>{{ company.insurance_id }}</td>
+                <td>{{ company.name }}</td>
+                <td>{{ company.address }}</td>
+                <td>
+                    <!-- Link to the update form route with the insurance company's ID -->
+                    <a href="{{ url_for('routes.update_insurance_company', insurance_id=company.insurance_id) }}" class="btn btn-primary">Update</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
