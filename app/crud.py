@@ -7,7 +7,10 @@ from sqlalchemy.orm import Session
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.schemas import EmployeeModel, JobClass, Doctor, Nurse, Admin, OtherHCP, OutpatientSurgery, Facility, Office
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+from app.schemas import EmployeeModel, JobClass, Doctor, Nurse, Admin, OtherHCP, OutpatientSurgery, Facility, Office, \
+    InsuranceCompany
 
 
 def create_employee(session, employee_data, subclass_data):
@@ -60,10 +63,6 @@ def create_employee(session, employee_data, subclass_data):
     except Exception as e:
         session.rollback()
         raise Exception(f"An error occurred: {str(e)}")
-
-
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
 
 
 def retrieve_all_employees(session):
@@ -155,25 +154,62 @@ def create_insurance_company(session, insurance_data):
         raise Exception(f"An error occurred: {str(e)}")
 
 
-def get_employee(session, empid):
-    sql_query = text("SELECT * FROM Employee WHERE EMPID = :empid")
-    result = session.execute(sql_query, {'empid': empid}).fetchone()
-    return result
+def retrieve_insurance_companies(session) -> List[InsuranceCompany]:
+    try:
+        # SQL query to fetch all insurance companies
+        query = text("""
+            SELECT insurance_id, name, address FROM InsuranceCompany;
+        """)
+        result = session.execute(query).fetchall()  # This returns a list of tuples
+
+        # Convert tuples into list of InsuranceCompany models
+        insurance_companies = [InsuranceCompany(insurance_id=company[0], name=company[1], address=company[2]) for
+                               company in result]
+        return insurance_companies
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Database operation failed: {str(e)}")
 
 
-def update_employee(session, empid, update_data):
-    update_statements = []
-    for key, value in update_data.items():
-        update_statements.append(f"{key} = :{key}")
-    update_query = "UPDATE Employee SET " + ", ".join(update_statements) + " WHERE EMPID = :empid"
-    session.execute(text(update_query), {**update_data, 'empid': empid})
-    session.commit()
 
+def get_insurance_company_by_id(session, insurance_id):
+    try:
+        # Prepare the SQL query using text() for safe parameter binding
+        query = text("SELECT insurance_id, name, address FROM InsuranceCompany WHERE insurance_id = :id")
+        result = session.execute(query, {'id': insurance_id}).fetchone()
 
-def delete_employee(session, empid):
-    delete_query = text("DELETE FROM Employee WHERE EMPID = :empid")
-    session.execute(delete_query, {'empid': empid})
-    session.commit()
+        if result is None:
+            return None  # Return None if no insurance company is found
+
+        # Convert the result tuple into a Pydantic model
+        insurance_company = InsuranceCompany(
+            insurance_id=result[0],
+            name=result[1],
+            address=result[2]
+        )
+        return insurance_company
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Failed to fetch insurance company: {str(e)}")
+
+def update_insurance_company_data(session, insurance_id, name, address):
+    try:
+        # Prepare the SQL update statement using text() for parameter safety
+        update_stmt = text("""
+            UPDATE InsuranceCompany
+            SET name = :name, address = :address
+            WHERE insurance_id = :insurance_id;
+        """)
+        ic("is my log showing____________________",{'insurance_id': insurance_id, 'name': name, 'address': address})
+        session.execute(update_stmt, {'insurance_id': insurance_id, 'name': name, 'address': address})
+        session.commit()
+        return True
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Failed to update insurance company: {str(e)}")
+
 
 
 def get_all_facility(session):
@@ -189,10 +225,6 @@ def get_all_facility(session):
     return rtn_list
 
 
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
-
-
 def create_facility(session, facility_data, subtype_data):
     try:
         # Insert into Facility table
@@ -203,8 +235,7 @@ def create_facility(session, facility_data, subtype_data):
         session.execute(facility_insert, facility_data)
 
         # Get the last inserted facility_id
-        facility_id = session.execute(text("SELECT LAST_INSERT_ID();")).scalar()
-
+        facility_id = session.execute(text("SELECT LAST_INSERT_ID();"))
         # Check facility type and insert into the corresponding subtype table
         if facility_data['ftype'] == 'Office':
             office_insert = text("""
@@ -231,8 +262,11 @@ def create_facility(session, facility_data, subtype_data):
     except Exception as e:
         session.rollback()
         raise Exception(f"An error occurred: {str(e)}")
+
+
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
+
 
 def retrieve_facilities(session):
     try:
@@ -251,7 +285,7 @@ def retrieve_facilities(session):
             LEFT JOIN Office o ON f.facility_id = o.facility_id
             LEFT JOIN OutpatientSurgery s ON f.facility_id = s.facility_id;
         """)
-        facilities_data = session.execute(facilities_query).fetchall()
+        facilities_data = session.execute(facilities_query)
 
         result_list = []
 
