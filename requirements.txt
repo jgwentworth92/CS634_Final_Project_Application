@@ -4,3 +4,12 @@ asyncio
 aiomysql
 flask
 jinja2
+Flask-WTF
+pydantic==2.6.4
+pydantic_core==2.16.3
+pydantic-settings==2.0.3
+Bootstrap-Flask>=2.2.0
+Flask-Session>=0.4.0
+icecream
+Flask-WTF>=1.1.1
+WTForms-SQLAlchemy
