@@ -41,7 +41,7 @@ def add_facility(ftype='Office'):
             create_facility(db.get_db(), facility_data, subtype_data)
          # Commit the transaction after successful CRUD operation
             flash('Facility added successfully!', 'success')
-            return redirect(url_for('routes.index'))  # Assuming there is a function to list facilities
+            return redirect(url_for('routes.view_facilities'))  # Assuming there is a function to list facilities
         except Exception as e:
           # Roll back in case of error
             flash(f"Error adding facility: {str(e)}", 'error')
