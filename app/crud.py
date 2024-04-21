@@ -1,11 +1,13 @@
 import logging
+from typing import Union, List
+
 from icecream import ic
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.schemas import EmployeeModel, JobClass, Doctor, Nurse, Admin, OtherHCP
+from app.schemas import EmployeeModel, JobClass, Doctor, Nurse, Admin, OtherHCP, OutpatientSurgery, Facility, Office
 
 
 def create_employee(session, employee_data, subclass_data):
@@ -229,3 +231,61 @@ def create_facility(session, facility_data, subtype_data):
     except Exception as e:
         session.rollback()
         raise Exception(f"An error occurred: {str(e)}")
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+
+def retrieve_facilities(session):
+    try:
+        # Query to fetch facilities with details from subtypes if available
+        facilities_query = text("""
+            SELECT 
+                f.facility_id, 
+                f.address, 
+                f.size, 
+                f.ftype,
+                o.office_count,
+                s.room_count, 
+                s.description, 
+                s.p_code
+            FROM Facility f
+            LEFT JOIN Office o ON f.facility_id = o.facility_id
+            LEFT JOIN OutpatientSurgery s ON f.facility_id = s.facility_id;
+        """)
+        facilities_data = session.execute(facilities_query).fetchall()
+
+        result_list = []
+
+        # Construct facility objects based on type and available data
+        for facility in facilities_data:
+            if facility[3] == 'Office' and facility[4] is not None:
+                result_list.append({
+                    'facility_id': facility[0],
+                    'address': facility[1],
+                    'size': facility[2],
+                    'ftype': 'Office',
+                    'office_count': facility[4]
+                })
+            elif facility[3] == 'OutpatientSurgery' and facility[5] is not None:
+                result_list.append({
+                    'facility_id': facility[0],
+                    'address': facility[1],
+                    'size': facility[2],
+                    'ftype': 'Outpatient Surgery',
+                    'room_count': facility[5],
+                    'description': facility[6],
+                    'p_code': facility[7]
+                })
+            else:
+                # General facility data that doesn't match subtype criteria
+                result_list.append({
+                    'facility_id': facility[0],
+                    'address': facility[1],
+                    'size': facility[2],
+                    'ftype': facility[3]
+                })
+
+        return result_list
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Database operation failed: {str(e)}")
