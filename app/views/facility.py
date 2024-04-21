@@ -1,6 +1,6 @@
 from flask import flash, redirect, url_for, render_template
 
-from app.crud import create_facility
+from app.crud import create_facility, retrieve_facilities
 from app.forms import OfficeForm, OutpatientSurgeryForm
 from app.Database import db
 
@@ -47,3 +47,11 @@ def add_facility(ftype='Office'):
             flash(f"Error adding facility: {str(e)}", 'error')
 
     return render_template('add.html', form=form, ftype=ftype)
+
+def view_facilities():
+    # Retrieve all facilities, organized by type with associated data
+    facilities = retrieve_facilities(db.get_db())
+    offices = [f for f in facilities if f['ftype'] == 'Office']
+    surgeries = [f for f in facilities if f['ftype'] == 'Outpatient Surgery']
+
+    return render_template('view_facility.html', offices=offices, surgeries=surgeries)
