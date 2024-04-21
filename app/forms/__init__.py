@@ -55,7 +55,15 @@ class OutpatientSurgeryForm(BaseFacilityForm):
     description = StringField('Description', validators=[DataRequired()])
     p_code = StringField('Procedure Code', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
 class InsuranceCompanyForm(FlaskForm):
     name = StringField('Company Name', validators=[DataRequired()])
     address = StringField('Address', validators=[DataRequired()])
-    submit = SubmitField('Add Company')
+    submit = SubmitField('Update Company')
+
+    def __init__(self, *args, **kwargs):
+        super(InsuranceCompanyForm, self).__init__(*args, **kwargs)
+        if 'obj' in kwargs and kwargs['obj'] is not None:
+            obj = kwargs['obj']
+            self.name.data = getattr(obj, 'name', '')
+            self.address.data = getattr(obj, 'address', '')
