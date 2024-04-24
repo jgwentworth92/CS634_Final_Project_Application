@@ -61,6 +61,17 @@
                                      <li><a href="{{ url_for('routes.view_insurance_companies') }}">View Insurance Company</a></li>
                             </ul>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPatient" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                               Patients
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownPatient">
+                                     <li><a href="{{ url_for('routes.add_patient_record') }}">Add Patient</a></li>
+                                <li><a href="{{ url_for('routes.view_patient_list') }}">View Patient</a></li>
+                                       <li><a href="{{ url_for('routes.make_appointment') }}">Make Appointment</a></li>
+                              <li><a href="{{ url_for('routes.search_appointments') }}">Search Appointment</a></li>
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </nav>

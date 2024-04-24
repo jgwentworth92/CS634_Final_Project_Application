@@ -33,7 +33,8 @@ def create_app():
     create_appointments_tables(session)
     create_invoice_tables(session)
 
-
+    app.config["SESSION_PERMANENT"] = False
+    app.config["SESSION_TYPE"] = "filesystem"
     bootstrap = Bootstrap5(app)
     app.register_blueprint(routes.bp)
 

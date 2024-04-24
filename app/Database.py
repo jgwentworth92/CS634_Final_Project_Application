@@ -163,7 +163,7 @@ def create_insurance_tables(session):
            name VARCHAR(255),
            address VARCHAR(255),
            PRIMARY KEY (insurance_id)
-       );
+       ) ;
        """)
 
     session.execute(sql_query)
@@ -192,6 +192,7 @@ def create_appointments_tables(session):
           facility_id INT NOT NULL,
           doctor_id INT NOT NULL,
           date_time DATETIME NOT NULL,
+          description VARCHAR(255),
           PRIMARY KEY (patient_id, facility_id, doctor_id, date_time),
           FOREIGN KEY (patient_id) REFERENCES Patient(patient_id),
           FOREIGN KEY (facility_id) REFERENCES Facility(facility_id),
@@ -208,7 +209,7 @@ def create_invoice_tables(session):
         """
         CREATE TABLE IF NOT EXISTS Invoice (
             invoice_id INT AUTO_INCREMENT,
-            date DATETIME NOT NULL,
+            date DATE NOT NULL,
             total_cost DECIMAL(10, 2),
             insurance_id INT,
             PRIMARY KEY (invoice_id),

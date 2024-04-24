@@ -85,7 +85,7 @@ def retrieve_all_employees(session):
         for emp in employee_result:
             emp_data = {
                 'empid': emp[0],  # EMPID
-                'ssn': emp[1],    # SSN
+                'ssn': emp[1],  # SSN
                 'fname': emp[2],  # First Name
                 'lname': emp[3],  # Last Name
                 'salary': float(emp[4]),  # Salary
@@ -120,6 +120,229 @@ def retrieve_all_employees(session):
     except SQLAlchemyError as e:
         session.rollback()
         raise Exception(f"Database operation failed: {str(e)}")
+
+
+def create_appointment(session, patient_id, facility_id, doctor_id, date_time):
+    try:
+        # Get insurance_id from Patient
+        insurance_query = text("SELECT insurance_id FROM Patient WHERE patient_id = :patient_id")
+        insurance_result = session.execute(insurance_query, {'patient_id': patient_id}).fetchone()
+        insurance_id = insurance_result[0] if insurance_result else None
+
+        if not insurance_id:
+            raise ValueError("No insurance found for patient")
+
+        # Date only for the invoice
+        invoice_date = date_time.date()
+
+        # Check for existing invoice or create new one
+        invoice_query = text("""
+            SELECT invoice_id FROM Invoice
+            WHERE insurance_id = :insurance_id AND date = :invoice_date
+        """)
+        invoice_result = session.execute(invoice_query,
+                                         {'insurance_id': insurance_id, 'invoice_date': invoice_date}).fetchone()
+
+        if invoice_result:
+            invoice_id = invoice_result[0]
+        else:
+            insert_invoice = text("""
+                INSERT INTO Invoice (date, total_cost, insurance_id)
+                VALUES (:invoice_date, 0, :insurance_id)
+            """)
+            session.execute(insert_invoice, {'invoice_date': invoice_date, 'insurance_id': insurance_id})
+            invoice_id = session.execute(text('SELECT LAST_INSERT_ID()')).scalar()
+
+        # Insert into Appointments
+        appointment_insert = text("""
+            INSERT INTO Appointments (patient_id, facility_id, doctor_id, date_time)
+            VALUES (:patient_id, :facility_id, :doctor_id, :date_time)
+        """)
+        session.execute(appointment_insert,
+                        {'patient_id': patient_id, 'facility_id': facility_id, 'doctor_id': doctor_id,
+                         'date_time': date_time})
+
+        # Initialize InvoiceDetails
+        invoice_details_insert = text("""
+            INSERT INTO InvoiceDetails (invoice_id, cost, patient_id, facility_id, doctor_id, date_time)
+            VALUES (:invoice_id, 0, :patient_id, :facility_id, :doctor_id, :date_time)
+        """)
+        session.execute(invoice_details_insert,
+                        {'invoice_id': invoice_id, 'patient_id': patient_id, 'facility_id': facility_id,
+                         'doctor_id': doctor_id, 'date_time': date_time})
+
+        # Insert into Treats if not exists
+        check_treats = text("""
+            SELECT 1 FROM Treats WHERE patient_id = :patient_id AND doctor_id = :doctor_id
+        """)
+        treats_exists = session.execute(check_treats, {'patient_id': patient_id, 'doctor_id': doctor_id}).scalar()
+
+        if not treats_exists:
+            insert_treats = text("""
+                INSERT INTO Treats (patient_id, doctor_id)
+                VALUES (:patient_id, :doctor_id)
+            """)
+            session.execute(insert_treats, {'patient_id': patient_id, 'doctor_id': doctor_id})
+
+        session.commit()
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Failed to create appointment: {str(e)}")
+
+def add_patient(session, patient_data):
+    try:
+        insert_query = text("""
+            INSERT INTO Patient (fname, lname, primary_doc_id, insurance_id)
+            VALUES (:fname, :lname, :primary_doc_id, :insurance_id);
+        """)
+        session.execute(insert_query, patient_data)
+        session.commit()
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Failed to add patient: {str(e)}")
+
+
+def update_patient(session, patient_id, update_data):
+    try:
+        update_query = text("""
+            UPDATE Patient
+            SET fname = :fname, lname = :lname, primary_doc_id = :primary_doc_id, insurance_id = :insurance_id
+            WHERE patient_id = :patient_id;
+        """)
+        session.execute(update_query, {**update_data, 'patient_id': patient_id})
+        session.commit()
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Failed to update patient: {str(e)}")
+
+
+def get_all_patients(session):
+    try:
+        select_query = text("""
+            SELECT patient_id, fname, lname, primary_doc_id, insurance_id
+            FROM Patient;
+        """)
+        result = session.execute(select_query)
+        patients = []
+        for row in result:
+            patient = {
+                'patient_id': row[0],  # Assuming result row can be accessed as dict
+                'fname': row[1],
+                'lname': row[2],
+                'primary_doc_id': row[3],
+                'insurance_id': row[4]
+            }
+            patients.append(patient)
+        return patients
+    except SQLAlchemyError as e:
+        raise Exception(f"Failed to retrieve all patients: {str(e)}")
+
+
+def get_patient(session, patient_id):
+    try:
+        # Define the SQL query to select a patient by ID
+        select_query = text("""
+            SELECT patient_id, fname, lname, primary_doc_id, insurance_id
+            FROM Patient WHERE patient_id = :id;
+        """)
+
+        # Execute the query passing the patient_id
+        result = session.execute(select_query, {'id': patient_id})
+
+        # Initialize patient to None
+        patient = None
+
+        # Iterate through the result set
+        for row in result:
+            # Convert the first result into a dictionary and break the loop
+            patient = {
+                'patient_id': row[0],  # Access by index
+                'fname': row[1],
+                'lname': row[2],
+                'primary_doc_id': row[3],
+                'insurance_id': row[4]
+            }
+            break  # Only process the first row since patient_id should be unique
+
+        return patient  # Return the patient dictionary or None if not found
+
+    except SQLAlchemyError as e:
+        # Proper error handling for database issues
+        print(f"Failed to retrieve patient: {str(e)}")
+        return None
+
+
+def delete_patient(session, patient_id):
+    try:
+        delete_query = text("""
+            DELETE FROM Patient WHERE patient_id = :patient_id;
+        """)
+        session.execute(delete_query, {'patient_id': patient_id})
+        session.commit()
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Failed to delete patient: {str(e)}")
+
+
+def get_all_doctors(session):
+    try:
+        # Constructing the SQL query
+        query = text("SELECT EMPID, fname, lname FROM Employee WHERE job_class = 'Doctor';")
+
+        # Executing the query
+        result = session.execute(query)
+
+        # Fetching all results
+        doctors = []
+        for row in result:
+            # Create a dictionary for each doctor and append to the list
+            doctor = {
+                'EMPID': row[0],  # Accessing EMPID
+                'fname': row[1],  # Accessing first name
+                'lname': row[2]  # Accessing last name
+            }
+            doctors.append(doctor)
+
+        return doctors
+
+    except SQLAlchemyError as e:
+        # Proper error handling
+        print(f"Error accessing database: {e}")
+        return []
+
+
+def get_all_insurance_companies(session):
+    # Placeholder SQL query
+    query = text("SELECT insurance_id, name FROM InsuranceCompany;")
+    result = session.execute(query)
+    rtn_list = []
+    for row in result:
+        insurance_company = {"insurance_id": row[0], "name": row[1]}
+        rtn_list.append(insurance_company)
+    return rtn_list
+
+
+def get_patient(session, patient_id):
+    try:
+        select_query = text("""
+            SELECT patient_id, fname, lname, primary_doc_id, insurance_id
+            FROM Patient
+            WHERE patient_id = :patient_id;
+        """)
+        result = session.execute(select_query, {'patient_id': patient_id})
+        patient = None
+        for row in result:
+            patient = {
+                'patient_id': row[0],
+                'fname': row[1],
+                'lname': row[2],
+                'primary_doc_id': row[3],
+                'insurance_id': row[4]
+            }
+            break  # Since there should only be one record, break after the first iteration
+        return patient
+    except SQLAlchemyError as e:
+        raise Exception(f"Failed to get patient details: {str(e)}")
 
 
 def create_insurance_company(session, insurance_data):
@@ -157,7 +380,6 @@ def retrieve_insurance_companies(session) -> List[InsuranceCompany]:
         raise Exception(f"Database operation failed: {str(e)}")
 
 
-
 def get_insurance_company_by_id(session, insurance_id):
     try:
         # Prepare the SQL query using text() for safe parameter binding
@@ -179,6 +401,7 @@ def get_insurance_company_by_id(session, insurance_id):
         session.rollback()
         raise Exception(f"Failed to fetch insurance company: {str(e)}")
 
+
 def update_insurance_company_data(session, insurance_id, name, address):
     try:
         # Prepare the SQL update statement using text() for parameter safety
@@ -187,14 +410,13 @@ def update_insurance_company_data(session, insurance_id, name, address):
             SET name = :name, address = :address
             WHERE insurance_id = :insurance_id;
         """)
-        ic("is my log showing____________________",{'insurance_id': insurance_id, 'name': name, 'address': address})
+        ic("is my log showing____________________", {'insurance_id': insurance_id, 'name': name, 'address': address})
         session.execute(update_stmt, {'insurance_id': insurance_id, 'name': name, 'address': address})
         session.commit()
         return True
     except SQLAlchemyError as e:
         session.rollback()
         raise Exception(f"Failed to update insurance company: {str(e)}")
-
 
 
 def get_all_facility(session):
@@ -260,8 +482,6 @@ def create_facility(session, facility_data, subtype_data):
         raise Exception(f"An error occurred: {str(e)}")
 
 
-
-
 def retrieve_facilities(session):
     try:
         # Query to fetch facilities with details from subtypes if available
@@ -317,3 +537,88 @@ def retrieve_facilities(session):
     except SQLAlchemyError as e:
         session.rollback()
         raise Exception(f"Database operation failed: {str(e)}")
+
+
+def search_appointments_db(session, patient_id=None, doctor_id=None, facility_id=None, start_date=None, end_date=None):
+    query = """
+        SELECT a.patient_id, a.doctor_id, a.facility_id, a.date_time, id.cost
+        FROM Appointments a
+        JOIN InvoiceDetails id ON a.patient_id = id.patient_id
+                               AND a.facility_id = id.facility_id
+                               AND a.doctor_id = id.doctor_id
+                               AND a.date_time = id.date_time
+        WHERE 1=1
+    """
+    params = {}
+    if patient_id:
+        query += " AND a.patient_id = :patient_id"
+        params['patient_id'] = patient_id
+    if doctor_id:
+        query += " AND a.doctor_id = :doctor_id"
+        params['doctor_id'] = doctor_id
+    if facility_id:
+        query += " AND a.facility_id = :facility_id"
+        params['facility_id'] = facility_id
+    if start_date:
+        query += " AND a.date_time >= :start_date"
+        params['start_date'] = start_date.strftime('%Y-%m-%d')
+    if end_date:
+        query += " AND a.date_time <= :end_date"
+        params['end_date'] = end_date.strftime('%Y-%m-%d')
+
+    result = session.execute(text(query), params)
+    # Convert result to dictionary for easier handling in templates
+    appointments = [
+        {'patient_id': row[0], 'doctor_id': row[1], 'facility_id': row[2], 'date_time': row[3], 'cost': row[4]} for row
+        in result]
+
+    return appointments
+def update_appointment_cost_db(session, patient_id, facility_id, doctor_id, date_time, new_cost):
+    try:
+        update_invoice_details = text("""
+            UPDATE InvoiceDetails
+            SET cost = :new_cost
+            WHERE patient_id = :patient_id AND facility_id = :facility_id
+              AND doctor_id = :doctor_id AND date_time = :date_time
+        """)
+        result = session.execute(update_invoice_details, {
+            'new_cost': new_cost,
+            'patient_id': patient_id,
+            'facility_id': facility_id,
+            'doctor_id': doctor_id,
+            'date_time': date_time
+        })
+        print(f"Rows affected in InvoiceDetails: {result.rowcount}")  # Debugging line
+
+        calculate_new_total = text("""
+            UPDATE Invoice
+            SET total_cost = (
+                SELECT SUM(cost)
+                FROM InvoiceDetails
+                WHERE invoice_id IN (
+                    SELECT invoice_id
+                    FROM InvoiceDetails
+                    WHERE patient_id = :patient_id AND facility_id = :facility_id
+                      AND doctor_id = :doctor_id AND DATE(date_time) = DATE(:date_time)
+                )
+            )
+            WHERE invoice_id IN (
+                SELECT invoice_id
+                FROM InvoiceDetails
+                WHERE patient_id = :patient_id AND facility_id = :facility_id
+                  AND doctor_id = :doctor_id AND DATE(date_time) = DATE(:date_time)
+            )
+        """)
+        result = session.execute(calculate_new_total, {
+            'patient_id': patient_id,
+            'facility_id': facility_id,
+            'doctor_id': doctor_id,
+            'date_time': date_time
+        })
+        print(f"Rows affected in Invoice: {result.rowcount}")  # Debugging line
+
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        print(f"Error during database operation: {str(e)}")
+        raise

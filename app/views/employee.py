@@ -21,7 +21,6 @@ def add_employee(job_class='Doctor'):
         return redirect(url_for('routes.index'))
 
     form = form_class()
-    retrieve_all_employees(db.get_db())
     if form.validate_on_submit():
         try:
             # Common data extraction
@@ -50,7 +49,7 @@ def add_employee(job_class='Doctor'):
             flash(f'{job_class} has been successfully added.', 'success')
             return redirect(url_for('routes.view_employees'))
         except Exception as e:
-            flash("AYYYYE SOMETHING BROKE MY DUDE!!!!!!!!", 'error')
+            flash(f"Database operation failed: {str(e)}", 'error')
 
     return render_template('add.html', form=form, job_class=job_class)
 
