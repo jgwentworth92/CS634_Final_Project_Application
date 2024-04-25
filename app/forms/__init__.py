@@ -111,13 +111,6 @@ class DailyInvoiceForm(FlaskForm):
     invoice_date = DateField('Invoice Date', format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
-    def __init__(self, invoice=None, *args, **kwargs):
-        super(DailyInvoiceForm, self).__init__(*args, **kwargs)
-
-        # Set default values if an appointment object is provided
-        if invoice is not None:
-            self.invoice_date.data = invoice['date']
-
 
 class AppointmentForm(FlaskForm):
     patient_id = SelectField('Patient', coerce=int, validators=[DataRequired()])
