@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_form, render_field, render_form_row %}
+
+{% block content %}
+<div class="container">
+    <h1>Search Appointments</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ render_form(form) }}
+
+    </form>
+
+    {% if appointments %}
+    <div class="mt-4">
+        <h2>Results</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Doctor ID</th>
+                    <th>Facility ID</th>
+                    <th>Date/Time</th>
+                    <th>Description</th>
+                    <th>Cost</th>
+                    <th>Update Cost</th>
+                    <th>actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr>
+                    <td>{{ appointment['patient_id'] }}</td>
+                    <td>{{ appointment['doctor_id'] }}</td>
+                    <td>{{ appointment['facility_id'] }}</td>
+                    <td>{{ appointment['date_time'] }}</td>
+                     <td>{{appointment['description'] }}</td>
+                    <td>{{ appointment['cost'] }}</td>
+                    <td>
+                        <form method="POST">
+                            {{ update_forms[appointment.form_key].hidden_tag() }}
+                            {{ update_forms[appointment.form_key].cost(size=5) }}
+                            {{ update_forms[appointment.form_key].submit() }}
+                        </form>
+                    </td>
+                    <td>   <a href="{{url_for('routes.edit_appointment', patient_id=appointment.patient_id, facility_id=appointment.facility_id, doctor_id=appointment.doctor_id, date_time=appointment.date_time)}}" class="btn btn-info btn-sm">Edit</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No results found. Please adjust your search criteria.</p>
+    {% endif %}
+</div>
+{% endblock %}

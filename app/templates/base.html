@@ -35,11 +35,11 @@
                                 Employees
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownEmployees">
-                                <li><a href="{{ url_for('routes.add_employee', job_class='Doctor') }}">Add Doctor</a></li>
-                                <li><a href="{{ url_for('routes.add_employee', job_class='Nurse') }}">Add Nurse</a></li>
-                                <li><a href="{{ url_for('routes.add_employee', job_class='Admin') }}">Add Admin</a></li>
-                                <li><a href="{{ url_for('routes.add_employee', job_class='OtherHCP') }}">Add Other HCP</a></li>
-                                <li><a href="{{ url_for('routes.view_employees') }}">view employees</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.add_employee', job_class='Doctor') }}">Add Doctor</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.add_employee', job_class='Nurse') }}">Add Nurse</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.add_employee', job_class='Admin') }}">Add Admin</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.add_employee', job_class='OtherHCP') }}">Add Other HCP</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.view_employees') }}">view employees</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -47,9 +47,9 @@
                                 Facilities
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownFacilities">
-                                <li><a href="{{ url_for('routes.add_facility', ftype='Office') }}">Add Office</a></li>
-                                <li><a href="{{ url_for('routes.add_facility', ftype='OutpatientSurgery') }}">Add Outpatient Surgery</a></li>
-                                   <li><a href="{{ url_for('routes.view_facilities') }}">view</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.add_facility', ftype='Office') }}">Add Office</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.add_facility', ftype='OutpatientSurgery') }}">Add Outpatient Surgery</a></li>
+                                   <li><a  class="dropdown-item"  href="{{ url_for('routes.view_facilities') }}">view</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -57,8 +57,29 @@
                                 Insurance Companies
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownInsurance">
-                                <li><a href="{{ url_for('routes.add_insurance_company') }}">Add Insurance Company</a></li>
-                                     <li><a href="{{ url_for('routes.view_insurance_companies') }}">View Insurance Company</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.add_insurance_company') }}">Add Insurance Company</a></li>
+                                     <li><a  class="dropdown-item"  href="{{ url_for('routes.view_insurance_companies') }}">View Insurance Company</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPatient" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                               Patients
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownPatient">
+                                     <li><a  class="dropdown-item"  href="{{ url_for('routes.add_patient_record') }}">Add Patient</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.view_patient_list') }}">View Patient</a></li>
+
+                            </ul>
+                        </li>
+                         <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarAppointments" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                               Appointments
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarAppointments">
+
+                                       <li><a  class="dropdown-item"  href="{{ url_for('routes.make_appointment') }}">Make Appointment</a></li>
+                              <li><a  class="dropdown-item"  href="{{ url_for('routes.search_appointments') }}">Search Appointment</a></li>
+                                   <li><a  class="dropdown-item"  href="{{ url_for('routes.daily_invoices') }}">View Invoices</a></li>
                             </ul>
                         </li>
                     </ul>
