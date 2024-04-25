@@ -1,0 +1,59 @@
+<!-- daily_invoice_view.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h1>Daily Insurance Invoices</h1>
+    <form method="POST" class="mb-4">
+        {{ form.hidden_tag() }}
+        <div class="form-row align-items-center">
+            <div class="col-auto">
+                {{ form.invoice_date.label(class="col-form-label") }}
+            </div>
+            <div class="col-auto">
+                {{ form.invoice_date(class="form-control") }}
+            </div>
+            <div class="col-auto">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </div>
+    </form>
+
+    {% if invoices_by_insurance %}
+        <h2 class="mb-3">Invoice Date: {{ invoice_date }}</h2>
+        {% for insurance_key, insurance_info in invoices_by_insurance.items() %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3>{{ insurance_info['insurance_name'] }} (ID: {{ insurance_key[0] }})</h3>
+            </div>
+            <div class="card-body">
+                {% for invoice_id, invoice_info in insurance_info['invoices'].items() %}
+                <div class="mb-2">
+                    <h4>Invoice ID: {{ invoice_id }}, Total Cost: ${{ invoice_info['invoice_total_cost'] | round(2) }}</h4>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Name</th>
+                                <th>Charge</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in invoice_info['patient_details'] %}
+                            <tr>
+                                <td>{{ patient['patient_id'] }}</td>
+                                <td>{{ patient['patient_fname'] }} {{ patient['patient_lname'] }}</td>
+                                <td>${{ patient['detail_cost'] | round(2) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="alert alert-warning">No invoices found for the selected date. Please choose another date.</p>
+    {% endif %}
+</div>
+{% endblock %}
