@@ -23,7 +23,6 @@ def create_appointment(session, patient_id, facility_id, doctor_id, date_time, d
         invoice_id = handle_invoice(session, insurance_id, invoice_date)
         insert_appointment(session, patient_id, facility_id, doctor_id, date_time, description)
         insert_invoice_details(session, invoice_id, patient_id, facility_id, doctor_id, date_time)
-        ensure_treats_exist(session, patient_id, doctor_id)
         session.commit()
     except SQLAlchemyError as e:
         session.rollback()
@@ -232,7 +231,6 @@ def update_appointment_and_related_details(session, original_data, updated_data)
         raise Exception(f"Failed to update appointment and related entities: {str(e)}")
 
 
-from sqlalchemy import text
 
 
 def search_daily_insurance_invoices(session, invoice_date):
