@@ -32,6 +32,7 @@ bp.add_url_rule('/add_patient_record',view_func=patient_management.add_patient_r
 bp.add_url_rule('/view_patient_list',view_func=patient_management.view_patient_list, methods=['GET', 'POST'])
 bp.add_url_rule('/edit_patient/<patient_id>',view_func=patient_management.edit_patient,methods=['GET', 'POST'])
 bp.add_url_rule('/delete_patient_record/<patient_id>',view_func=patient_management.delete_patient_record,methods=['GET', 'POST'])
-bp.add_url_rule('/make_appointment',view_func=patient_management.make_appointment,methods=['GET', 'POST'])
+bp.add_url_rule('/make_appointment',view_func=appointment_management.make_appointment,methods=['GET', 'POST'])
 bp.add_url_rule('/search_appointments',view_func=appointment_management.search_appointments,methods=['GET', 'POST'])
 bp.add_url_rule('/update_cost/<int:patient_id>/<int:facility_id>/<int:doctor_id>/<date_time>',view_func=appointment_management.update_cost, methods=['GET', 'POST'])
+bp.add_url_rule('/edit_appointment/<int:patient_id>/<int:facility_id>/<int:doctor_id>/<date_time>',view_func=appointment_management.edit_appointment, methods=['GET', 'POST'])

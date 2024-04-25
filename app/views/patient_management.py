@@ -5,9 +5,8 @@ from icecream import ic
 
 from app.Database import db
 
-from app.crud import add_patient, get_all_patients, update_patient, get_patient, delete_patient, create_appointment, \
-    search_appointments_db
 from app.forms import PatientForm, AppointmentForm
+from crud_helpers.patient_crud import delete_patient, update_patient, get_patient, get_all_patients, create_patient
 
 
 def add_patient_record():
@@ -23,7 +22,7 @@ def add_patient_record():
 
         try:
             # Create SQL insert statement
-            add_patient(db.get_db(), patient_data)
+            create_patient(db.get_db(), patient_data)
             flash('Patient added successfully!')
             return redirect(url_for('routes.view_patient_list'))  # Redirect to a route that shows all patients
         except Exception as e:
@@ -72,19 +71,3 @@ def delete_patient_record(patient_id):
     return redirect(url_for('routes.view_patient_list'))
 
 
-def make_appointment():
-    form = AppointmentForm()
-    appointment = search_appointments_db(db.get_db(), 2, facility_id=5)
-    for val in appointment:
-        ic(val)
-    if form.validate_on_submit():
-        # Adjust import as necessary
-        session = db.get_db()
-        try:
-            create_appointment(session, form.patient_id.data, form.facility_id.data, form.doctor_id.data,
-                               form.date_time.data)
-            flash('Appointment created successfully!', 'success')
-            return redirect(url_for('routes.view_patient_list'))  # Adjust redirect as necessary
-        except Exception as e:
-            flash(str(e), 'danger')
-    return render_template('add.html', form=form)

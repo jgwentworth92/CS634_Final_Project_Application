@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, DDL, MetaData, event
 from sqlalchemy.orm import declarative_base, sessionmaker
 import logging
 
@@ -48,6 +48,8 @@ class Database:
         session = self._session()
         return session
 
+    def get_engine(self):
+        return self._engine
 
 db = Database()
 
@@ -132,6 +134,55 @@ def create_employee_sublcass_tables(session):
 
 
 # Establishing the connection string
+def total_cost_trigger(database):
+    """
+    Define and attach database triggers for managing the total cost of invoices
+    using the provided database instance.
+    """
+    # Assumes you have a get_engine method
+    session=database.get_db()
+    # DDL for trigger on insert
+    trigger_for_insert = DDL("""
+    CREATE TRIGGER after_invoice_details_insert
+    AFTER INSERT ON InvoiceDetails
+    FOR EACH ROW
+    BEGIN
+        UPDATE Invoice
+        SET total_cost = total_cost + NEW.cost
+        WHERE invoice_id = NEW.invoice_id;
+    END;
+    """)
+
+    # DDL for trigger on delete
+    trigger_for_delete = DDL("""
+    CREATE TRIGGER after_invoice_details_delete
+    AFTER DELETE ON InvoiceDetails
+    FOR EACH ROW
+    BEGIN
+        UPDATE Invoice
+        SET total_cost = total_cost - OLD.cost
+        WHERE invoice_id = OLD.invoice_id;
+    END;
+    """)
+
+    # DDL for trigger on update
+    trigger_for_update = DDL("""
+    CREATE TRIGGER after_invoice_details_update
+    AFTER UPDATE ON InvoiceDetails
+    FOR EACH ROW
+    BEGIN
+        UPDATE Invoice
+        SET total_cost = total_cost - OLD.cost + NEW.cost
+        WHERE invoice_id = NEW.invoice_id;
+    END;
+    """)
+    session.execute( trigger_for_insert )
+    session.commit()
+    session.execute( trigger_for_delete)
+    session.commit()
+    session.execute(trigger_for_update)
+    session.commit()
+    # Attach each trigger to the metadata
 
 def create_employee_tables(session):
     sql_query = text("""
@@ -202,6 +253,7 @@ def create_appointments_tables(session):
 
     session.execute(sql_query)
     session.commit()
+
 
 
 def create_invoice_tables(session):

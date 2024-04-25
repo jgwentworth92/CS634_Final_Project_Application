@@ -1,10 +1,12 @@
 
 
-from app.crud import create_employee, get_all_facility, retrieve_all_employees, retrieve_facilities
 from app.forms import DoctorForm, NurseForm, AdminForm, OtherHCPForm
 from app.Database import db
 from icecream import ic
 from flask import render_template, request, redirect, url_for, flash
+
+from crud_helpers.employee_crud import create_employee, retrieve_all_employees
+
 
 def add_employee(job_class='Doctor'):
     form_class = {

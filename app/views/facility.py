@@ -1,8 +1,10 @@
 from flask import flash, redirect, url_for, render_template
 
-from app.crud import create_facility, retrieve_facilities
+
 from app.forms import OfficeForm, OutpatientSurgeryForm
 from app.Database import db
+from crud_helpers.facility_crud import create_facility, retrieve_facilities
+
 
 def add_facility(ftype='Office'):
     # Map form classes to the facility types

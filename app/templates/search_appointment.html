@@ -20,8 +20,10 @@
                     <th>Doctor ID</th>
                     <th>Facility ID</th>
                     <th>Date/Time</th>
+                    <th>Description</th>
                     <th>Cost</th>
                     <th>Update Cost</th>
+                    <th>actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,6 +33,7 @@
                     <td>{{ appointment['doctor_id'] }}</td>
                     <td>{{ appointment['facility_id'] }}</td>
                     <td>{{ appointment['date_time'] }}</td>
+                     <td>{{appointment['description'] }}</td>
                     <td>{{ appointment['cost'] }}</td>
                     <td>
                         <form method="POST">
@@ -39,6 +42,7 @@
                             {{ update_forms[appointment.form_key].submit() }}
                         </form>
                     </td>
+                    <td>   <a href="{{url_for('routes.edit_appointment', patient_id=appointment.patient_id, facility_id=appointment.facility_id, doctor_id=appointment.doctor_id, date_time=appointment.date_time)}}" class="btn btn-info btn-sm">Edit</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
