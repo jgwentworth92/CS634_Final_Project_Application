@@ -1,8 +1,9 @@
 from flask import render_template, flash, redirect, url_for, request
 from app.Database import db
-from app.crud import create_insurance_company, retrieve_insurance_companies, get_insurance_company_by_id, \
-    update_insurance_company_data
+
 from app.forms import InsuranceCompanyForm
+from crud_helpers.insurance_crud import create_insurance_company, retrieve_insurance_companies, \
+    get_insurance_company_by_id, update_insurance_company_data
 
 
 def add_insurance_company():
