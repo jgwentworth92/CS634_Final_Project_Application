@@ -23,6 +23,8 @@
                 <td>
                     <!-- Link to the update form route with the insurance company's ID -->
                     <a href="{{ url_for('routes.update_insurance_company', insurance_id=company.insurance_id) }}" class="btn btn-primary">Update</a>
+                    <a href="{{ url_for('routes.delete_insurance_company', insurance_id=company.insurance_id) }}" class="btn btn-primary">Delete</a>
+                    <!-- should I add the button for delete or something here? -->
                 </td>
             </tr>
             {% endfor %}

@@ -1,9 +1,9 @@
 from flask import render_template, flash, redirect, url_for, request
 from app.Database import db
 from app.crud import create_insurance_company, retrieve_insurance_companies, get_insurance_company_by_id, \
-    update_insurance_company_data
+    update_insurance_company_data, delete_insurance_company_entry, select_insurance_company_by_id
 from app.forms import InsuranceCompanyForm
-
+    
 
 def add_insurance_company():
     form = InsuranceCompanyForm()
@@ -58,3 +58,17 @@ def update_insurance_company(insurance_id):
         return redirect(url_for('routes.view_insurance_companies'))
 
     return render_template('update.html', form=form, insurance_id=insurance_id)
+
+def delete_insurance_company(insurance_id):
+    insurance_company = select_insurance_company_by_id(db.get_db(), insurance_id)
+    if not insurance_company:
+        flash('Insurance company not found.')
+        return redirect(url_for('routes.view_insurance_companies'))
+    if request.method == 'GET':
+        form = InsuranceCompanyForm(obj=insurance_company)
+        delete_insurance_company_entry(db.get_db(), insurance_id)
+        flash('Insurance company with id {} deleted successfully.'.format(insurance_id))
+                
+    
+    insurance_data = retrieve_insurance_companies(db.get_db())  # Assuming this function exists to fetch data
+    return render_template('view_insurance_companies.html', insurance_companies=insurance_data)

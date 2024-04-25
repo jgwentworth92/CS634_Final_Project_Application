@@ -27,3 +27,4 @@ bp.add_url_rule("/view_employees", view_func=employee.view_employees, methods=['
 bp.add_url_rule('/view_facility', view_func=facility.view_facilities, methods=['GET', 'POST'])
 bp.add_url_rule('/view_insurance_companies', view_func=insurance_companies.view_insurance_companies, methods=['GET', 'POST'])
 bp.add_url_rule('/update_insurance_company/<insurance_id>',view_func=insurance_companies.update_insurance_company,methods=['GET', 'POST'])
+bp.add_url_rule('/delete_insurance_company/<insurance_id>',view_func=insurance_companies.delete_insurance_company,methods=['GET', 'POST'])
