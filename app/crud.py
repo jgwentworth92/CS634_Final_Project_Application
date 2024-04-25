@@ -348,6 +348,7 @@ def delete_insurance_company_entry(session, insurance_id):
             DELETE FROM InsuranceCompany WHERE insurance_id = :insurance_id;
         """)
         session.execute(insurance_delete_query, {'insurance_id': insurance_id})
+        session.commit()
         print("\n\nDeletion Progress is here\n\n", insurance_delete_query)
     except SQLAlchemyError as e:
         session.rollback()
