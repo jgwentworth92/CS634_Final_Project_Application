@@ -4,12 +4,31 @@ from datetime import datetime
 from flask import render_template, request, redirect, url_for, session, flash
 from icecream import ic
 
-from app.forms import SearchAppointmentsForm, UpdateCostForm, AppointmentForm
+from app.forms import SearchAppointmentsForm, UpdateCostForm, AppointmentForm, DailyInvoiceForm
 from app.Database import db, total_cost_trigger
 from crud_helpers.appointment_crud import search_appointments_db, update_appointment_cost_db, get_appointment_by_id, \
     create_appointment, update_appointment_and_related_details, search_daily_insurance_invoices
 
 
+def daily_invoices():
+    form = DailyInvoiceForm(request.form)
+    invoices_by_insurance = {}
+    if request.method == 'POST' and form.validate():
+        # Store the selected date in session after validating form submission
+        session['invoice_date'] = form.invoice_date.data.strftime('%Y-%m-%d')
+        return redirect(url_for('routes.daily_invoices'))  # Redirect to clear POST data and avoid re-submission issues
+
+    if 'invoice_date' in session:
+        # Fetch invoices using the date stored in session if available
+        invoice_date = session['invoice_date']
+        invoices_by_insurance = search_daily_insurance_invoices(db.get_db(), invoice_date)
+    else:
+        # Set a default date or handle the case where no date is selected
+        invoice_date = datetime.now().strftime('%Y-%m-%d')
+        invoices_by_insurance = search_daily_insurance_invoices(db.get_db(), invoice_date)
+
+
+    return render_template('daily_invoice_view.html', form=form, invoices_by_insurance=invoices_by_insurance,  invoice_date= invoice_date)
 def search_appointments():
     form = SearchAppointmentsForm(request.form)
     update_forms = {}
@@ -47,16 +66,7 @@ def search_appointments():
                     new_cost=update_form.cost.data
                 )
 
-                invoices_by_insurance=search_daily_insurance_invoices(db.get_db(), '2024-04-27')
 
-
-                # Assuming 'invoices_by_insurance' is your nested dictionary containing all the data
-                for insurance_key, insurance_info in invoices_by_insurance.items():
-                    ic(f"--- Insurance: {insurance_info['insurance_name']} (ID: {insurance_key[0]}) ---")
-                    for invoice_id, invoice_info in insurance_info['invoices'].items():
-                        ic(f"  - Invoice ID: {invoice_id}, Total Cost: ${invoice_info['invoice_total_cost']:.2f}")
-                        for patient in invoice_info['patient_details']:
-                            ic(f"    - Patient ID: {patient['patient_id']}, Name: {patient['patient_fname']} {patient['patient_lname']}, Charge: ${patient['detail_cost']:.2f}")
 
                 flash(f'Cost updated successfully', 'success')
                 return redirect(url_for('routes.search_appointments'))  # Correctly namespaced
