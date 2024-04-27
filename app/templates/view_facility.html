@@ -25,6 +25,7 @@
                 <td>{{ office.address }}</td>
                 <td>{{ office.size }}</td>
                 <td>{{ office.office_count }}</td>
+                <td><a href="{{ url_for('routes.update_facility', surgery=0, office=office.facility_id) }}" class="btn btn-primary">Update</a></td>
             </tr>
             {% endfor %}
         </tbody>
@@ -56,6 +57,7 @@
                 <td>{{ surgery.room_count }}</td>
                 <td>{{ surgery.description }}</td>
                 <td>{{ surgery.p_code }}</td>
+                <td><a href="{{ url_for('routes.update_facility', surgery=surgery.facility_id, office=0) }}" class="btn btn-primary">Update</a></td>
             </tr>
             {% endfor %}
         </tbody>

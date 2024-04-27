@@ -37,4 +37,6 @@ bp.add_url_rule('/search_appointments',view_func=appointment_management.search_a
 bp.add_url_rule('/update_cost/<int:patient_id>/<int:facility_id>/<int:doctor_id>/<date_time>',view_func=appointment_management.update_cost, methods=['GET', 'POST'])
 bp.add_url_rule('/edit_appointment/<int:patient_id>/<int:facility_id>/<int:doctor_id>/<date_time>',view_func=appointment_management.edit_appointment, methods=['GET', 'POST'])
 bp.add_url_rule('/daily_invoices',view_func=appointment_management.daily_invoices,methods=['GET', 'POST'])
-
+bp.add_url_rule('/delete_insurance_company/<insurance_id>',view_func=insurance_companies.delete_insurance_company,methods=['GET', 'POST'])
+bp.add_url_rule('/update_facility/<int:surgery>/<int:office>',view_func=facility.update_facility,methods=['GET', 'POST'])
+bp.add_url_rule('/update_employee/<int:employee_id>/<string:job_class>',view_func=employee.update_employee,methods=['GET', 'POST'])

@@ -44,6 +44,7 @@
                         Job Title: {{ employee.job_title }}
                     {% endif %}
                 </td>
+                <td><a href="{{ url_for('routes.update_employee', employee_id=employee.empid, job_class=employee.job_class) }}" class="btn btn-primary">Update</a></td>
             </tr>
             {% endfor %}
         </tbody>

@@ -154,11 +154,42 @@ def get_all_doctors(session):
         return []
 
 
-
-
-# =========================
+# ==========================
 # CRUD operations for Update
-# =========================
+# ==========================
+
+def update_employee_entry(session, employee_id, job_class, employee_data, subclass_data):
+    print("\n\n", employee_data, "\n\n")
+    print("\n\n", subclass_data, "\n\n")
+    employee_data['employee_id'] = employee_id
+    subclass_data['employee_id'] = employee_id
+    update_query = text("""UPDATE Employee SET SSN=:ssn,fname=:fname,lname=:lname,salary=:salary,\
+                        hire_date=:hire_date,job_class=:job_class,address=:address,facility_id=:facility_id \
+                        WHERE EMPID=:employee_id;
+    """)
+    session.execute(update_query, employee_data)
+    if job_class=='Nurse':
+        update_query = text("""UPDATE Nurse SET certification=:certification \
+                        WHERE EMPID=:employee_id;
+    """)
+        session.execute(update_query, subclass_data)
+    elif job_class=='Doctor':
+        update_query = text("""UPDATE Doctor SET speciality=:speciality, bc_date=:bc_date \
+                        WHERE EMPID=:employee_id;
+    """)
+        session.execute(update_query, subclass_data)
+    elif job_class=='OtherHCP':
+        update_query = text("""UPDATE OtherHCP SET job_title=:job_title \
+                        WHERE EMPID=:employee_id;
+    """)
+        session.execute(update_query, subclass_data)
+    elif job_class=='Admin':
+        update_query = text("""UPDATE Admin SET job_title=:job_title \
+                        WHERE EMPID=:employee_id;
+    """)
+        session.execute(update_query, subclass_data)
+    session.commit()
+    return
 # =========================
 # CRUD operations for Delete
 # =========================
