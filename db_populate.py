@@ -73,7 +73,7 @@ def populate_employees():
                 'ssn': random.randint(100000000, 999999999),
                 'fname': fake.first_name(),
                 'lname': fake.last_name(),
-                'salary': random.randint(30000, 100000),
+                'salary': random.randint(30000, 130000),
                 'hire_date': fake.date_between(start_date='-5y', end_date='today'),
                 'job_class': job_class,
                 'address': fake.address(),
