@@ -72,7 +72,7 @@ def create_facility_tables(session):
             facility_id INT NOT NULL,
             office_count INT,
             PRIMARY KEY (facility_id),
-            FOREIGN KEY (facility_id) REFERENCES Facility(facility_id)
+            FOREIGN KEY (facility_id) REFERENCES Facility(facility_id) ON DELETE CASCADE
         );
         """,
         """
@@ -82,13 +82,14 @@ def create_facility_tables(session):
             description VARCHAR(255),
             p_code VARCHAR(100),
             PRIMARY KEY (facility_id),
-            FOREIGN KEY (facility_id) REFERENCES Facility(facility_id)
+            FOREIGN KEY (facility_id) REFERENCES Facility(facility_id) ON DELETE CASCADE
         );
         """
     ]
     for query in queries:
         session.execute(text(query))
         session.commit()
+
 
 
 def create_employee_sublcass_tables(session):
@@ -98,7 +99,7 @@ def create_employee_sublcass_tables(session):
             EMPID INT NOT NULL,
             job_title VARCHAR(255),
             PRIMARY KEY (EMPID),
-            FOREIGN KEY (EMPID) REFERENCES Employee(EMPID)
+            FOREIGN KEY (EMPID) REFERENCES Employee(EMPID) ON DELETE CASCADE
         );
         """,
         """
@@ -106,7 +107,7 @@ def create_employee_sublcass_tables(session):
             EMPID INT NOT NULL,
             certification VARCHAR(255),
             PRIMARY KEY (EMPID),
-            FOREIGN KEY (EMPID) REFERENCES Employee(EMPID)
+            FOREIGN KEY (EMPID) REFERENCES Employee(EMPID) ON DELETE CASCADE
         );
         """,
         """
@@ -114,7 +115,7 @@ def create_employee_sublcass_tables(session):
             EMPID INT NOT NULL,
             job_title VARCHAR(255),
             PRIMARY KEY (EMPID),
-            FOREIGN KEY (EMPID) REFERENCES Employee(EMPID)
+            FOREIGN KEY (EMPID) REFERENCES Employee(EMPID) ON DELETE CASCADE
         );
         """,
         """
@@ -123,7 +124,7 @@ def create_employee_sublcass_tables(session):
             speciality VARCHAR(255),
             bc_date DATE,
             PRIMARY KEY (EMPID),
-            FOREIGN KEY (EMPID) REFERENCES Employee(EMPID)
+            FOREIGN KEY (EMPID) REFERENCES Employee(EMPID) ON DELETE CASCADE
         );
         """
     ]
@@ -131,6 +132,7 @@ def create_employee_sublcass_tables(session):
     for query in queries:
         session.execute(text(query))
         session.commit()
+
 
 
 # Establishing the connection string
@@ -198,7 +200,7 @@ def create_employee_tables(session):
     facility_id INT,
     PRIMARY KEY (EMPID, SSN),
     UNIQUE (SSN),
-    FOREIGN KEY (facility_id) REFERENCES Facility(facility_id)
+    FOREIGN KEY (facility_id) REFERENCES Facility(facility_id) ON DELETE CASCADE
 );
 
     """)
@@ -227,13 +229,14 @@ def create_treats_tables(session):
            patient_id INT NOT NULL,
            doctor_id INT NOT NULL,
            PRIMARY KEY (patient_id, doctor_id),
-           FOREIGN KEY (patient_id) REFERENCES Patient(patient_id),
-           FOREIGN KEY (doctor_id) REFERENCES Doctor(EMPID)
+           FOREIGN KEY (patient_id) REFERENCES Patient(patient_id) ON DELETE CASCADE,
+           FOREIGN KEY (doctor_id) REFERENCES Doctor(EMPID) ON DELETE CASCADE
        );
        """)
 
     session.execute(sql_query)
     session.commit()
+
 
 
 def create_appointments_tables(session):
@@ -245,9 +248,9 @@ def create_appointments_tables(session):
           date_time DATETIME NOT NULL,
           description VARCHAR(255),
           PRIMARY KEY (patient_id, facility_id, doctor_id, date_time),
-          FOREIGN KEY (patient_id) REFERENCES Patient(patient_id),
-          FOREIGN KEY (facility_id) REFERENCES Facility(facility_id),
-          FOREIGN KEY (doctor_id) REFERENCES Doctor(EMPID)
+          FOREIGN KEY (patient_id) REFERENCES Patient(patient_id) ON DELETE CASCADE,
+          FOREIGN KEY (facility_id) REFERENCES Facility(facility_id) ON DELETE CASCADE,
+          FOREIGN KEY (doctor_id) REFERENCES Doctor(EMPID) ON DELETE CASCADE
       );
       """)
 
@@ -265,22 +268,23 @@ def create_invoice_tables(session):
             total_cost DECIMAL(10, 2),
             insurance_id INT,
             PRIMARY KEY (invoice_id),
-            FOREIGN KEY (insurance_id) REFERENCES InsuranceCompany(insurance_id)
+            FOREIGN KEY (insurance_id) REFERENCES InsuranceCompany(insurance_id) ON DELETE CASCADE
         );
         """,
         """
         CREATE TABLE IF NOT EXISTS InvoiceDetails (
-    invoice_id INT NOT NULL,
-    cost DECIMAL(10, 2),
-    patient_id INT NOT NULL,
-    facility_id INT NOT NULL,
-    doctor_id INT NOT NULL,
-    date_time DATETIME NOT NULL,
-    PRIMARY KEY (invoice_id, patient_id, facility_id, doctor_id, date_time),
-    FOREIGN KEY (invoice_id) REFERENCES Invoice(invoice_id),
-    FOREIGN KEY (patient_id, facility_id, doctor_id, date_time) REFERENCES Appointments(patient_id, facility_id, doctor_id, date_time)
-);
-        """]
+            invoice_id INT NOT NULL,
+            cost DECIMAL(10, 2),
+            patient_id INT NOT NULL,
+            facility_id INT NOT NULL,
+            doctor_id INT NOT NULL,
+            date_time DATETIME NOT NULL,
+            PRIMARY KEY (invoice_id, patient_id, facility_id, doctor_id, date_time),
+            FOREIGN KEY (invoice_id) REFERENCES Invoice(invoice_id) ON DELETE CASCADE,
+            FOREIGN KEY (patient_id, facility_id, doctor_id, date_time) REFERENCES Appointments(patient_id, facility_id, doctor_id, date_time) ON DELETE CASCADE
+        );
+        """
+    ]
 
     for query in queries:
         session.execute(text(query))
@@ -297,10 +301,11 @@ def create_patient_table(session):
     primary_doc_id INT,  
     insurance_id INT,
     PRIMARY KEY (patient_id),
-    FOREIGN KEY (primary_doc_id) REFERENCES Doctor(EMPID), 
-    FOREIGN KEY (insurance_id) REFERENCES InsuranceCompany(insurance_id) 
+    FOREIGN KEY (primary_doc_id) REFERENCES Doctor(EMPID) ON DELETE CASCADE, 
+    FOREIGN KEY (insurance_id) REFERENCES InsuranceCompany(insurance_id) ON DELETE CASCADE
 );
     """)
+
 
     session.execute(sql_query)
     session.commit()
