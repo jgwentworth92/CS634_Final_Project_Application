@@ -2,4 +2,66 @@
 
 {% block content %}
     <h1>AYYYYYYEE WE GOT TABLES BOI!!!!!!!!!!!!!!!!!!!!!!!</h1>
+    <!-- Revenue By Facility: Date Input -->
+    <div class="form-group">
+        <label for="dateInput">Select Date:</label>
+        <input type="date" id="dateInput" name="dateInput" class="form-control">
+        <button type="button" onclick="redirectToRevenueByFacility()" class="btn btn-primary mt-2">Revenue By Facility</button>
+    </div>
+
+    <hr>
+    
+    <!-- 5 Best Days: Month and Year Input -->
+    <div class="form-group">
+        <label for="monthInput">Select Month:</label>
+        <input type="month" id="monthInput" name="monthInput" class="form-control">
+        <button type="button" onclick="redirectToBestDays()" class="btn btn-primary mt-2">Top Revenue Days</button>
+    </div>
+
+    <hr>
+
+    <!-- Average Daily Revenue: Begin and End Date Input -->
+    <div class="form-group">
+        <label for="beginDate">Begin Date:</label>
+        <input type="date" id="beginDate" name="beginDate" class="form-control">
+        <label for="endDate" class="mt-2">End Date:</label>
+        <input type="date" id="endDate" name="endDate" class="form-control">
+        <button type="button" onclick="redirectToAverageRevenue()" class="btn btn-primary mt-2">Average Daily Revenue</button>
+    </div>
+
+    <hr>
+
+    <div class="form-group">
+        <label for="dateInput_">Select Date:</label>
+        <input type="date" id="dateInput_" name="dateInput_" class="form-control">
+        <button type="button" onclick="redirectToRevenueByPatients()" class="btn btn-primary mt-2">Revenue By Patients</button>
+    </div>
+
+    <script>
+        function redirectToRevenueByFacility() {
+            var dateInputValue = document.getElementById("dateInput").value;
+            window.location.href = "{{ url_for('routes.revenue_by_facility', date='') }}" + dateInputValue;
+        }
+
+    
+        function redirectToBestDays() {
+        var monthInputValue = document.getElementById("monthInput").value;
+        var year = monthInputValue.substring(0, 4); // Extract year from the value
+        var month = monthInputValue.substring(5, 7); // Extract month from the value
+        window.location.href = "{{ url_for('routes.top_revenue_days', monthyear='' ) }}" + monthInputValue;
+        }
+
+        function redirectToAverageRevenue() {
+        var beginDateValue = document.getElementById("beginDate").value;
+        var endDateValue = document.getElementById("endDate").value;
+        var beginandend_datevalue = beginDateValue + ":" + endDateValue
+        window.location.href = "{{ url_for('routes.average_revenue', beginandend_datevalue='' ) }}" + beginandend_datevalue;
+        }
+
+        function redirectToRevenueByPatients() {
+            var dateInputValue = document.getElementById("dateInput_").value;
+            window.location.href = "{{ url_for('routes.revenue_by_patient', date='') }}" + dateInputValue;
+        }
+       
+    </script>
 {% endblock %}

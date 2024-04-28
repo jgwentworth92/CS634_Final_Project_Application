@@ -387,4 +387,54 @@ def update_invoice_details(session, new_invoice_id, patient_id, facility_id, doc
         print(f"Error during database operation: {str(e)}")
         raise
 
+def update_total_cost(session):
+    try:
+        update_total_cost = text("""
+            UPDATE Invoice AS i
+            SET i.total_cost = (SELECT SUM(id.cost) FROM InvoiceDetails AS id
+                WHERE id.invoice_id = i.invoice_id
+            )
+            WHERE EXISTS (
+                SELECT * FROM InvoiceDetails AS id
+                WHERE id.invoice_id = i.invoice_id
+            );""")
+    except Exception as e:
+        session.rollback()
+        print(f"Error during total cost update: {str(e)}")
+        raise
 
+def generate_top_revenue_days(session, year, month):
+    revenue_query = text("""
+            SELECT DATE(Invoice.date) AS revenue_date, SUM(Invoice.total_cost) AS total_revenue
+            FROM Invoice
+            WHERE YEAR(Invoice.date) = :year AND MONTH(Invoice.date) = :month
+            GROUP BY DATE(Invoice.date)
+            ORDER BY total_revenue DESC
+            LIMIT 5;
+        """)
+    revenue_data = session.execute(revenue_query, {'year': year, 'month': month})
+    result_list = []
+    for revenue_entry in revenue_data:
+        result_list.append({
+                    'revenue_date': revenue_entry[0],
+                    'total_revenue': revenue_entry[1],
+                })
+    return result_list
+
+def generate_average_revenue_list(session, begin_date, end_date):
+    revenue_query = text("""
+            SELECT InsuranceCompany.name, AVG(Invoice.total_cost) AS avg_daily_revenue
+            FROM Invoice
+            JOIN InsuranceCompany ON Invoice.insurance_id = InsuranceCompany.insurance_id
+            WHERE Invoice.date BETWEEN :begin_date AND :end_date
+            GROUP BY InsuranceCompany.name;
+        """)
+    revenue_data = session.execute(revenue_query, {'begin_date': begin_date, 'end_date': end_date})
+    result_list = []
+    for revenue_entry in revenue_data:
+        result_list.append({
+                    'insurance_company': revenue_entry[0],
+                    'average_revenue': int(revenue_entry[1]),
+                })
+    print("\n\n", result_list, "\n\n")
+    return result_list

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Revenue By Date{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Revenue By Date</h1>
+
+    <!-- Section for Office facilities -->
+    {% if revenues %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Facility ID</th>
+                <th>Facility Type</th>
+                <th>Address</th>
+                <th>Revenue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for revenue in revenues %}
+            <tr>
+                <td>{{ revenue.facility_id }}</td>
+                <td>{{ revenue.ftype }}</td>
+                <td>{{ revenue.address }}</td>
+                <td>{{ revenue.daily_revenue }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Total Revenue: {{total_revenue}}</h3>
+    {% else %}
+    <p>No facilities found.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -179,3 +179,6 @@ class SearchAppointmentsForm(FlaskForm):
 class UpdateCostForm(FlaskForm):
     cost = DecimalField('New Cost', validators=[DataRequired(), NumberRange(min=0)], places=2, default=0.00)
     submit = SubmitField('Update Cost')
+
+# class RevenueByFacilityForm(FlaskForm):
+#     revenue_date = DateField('Invoice Date', format='%Y-%m-%d', validators=[DataRequired()])

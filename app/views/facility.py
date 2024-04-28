@@ -4,7 +4,8 @@ from flask import flash, redirect, url_for, render_template
 from app.forms import OfficeForm, OutpatientSurgeryForm
 from app.Database import db
 from crud_helpers.facility_crud import create_facility, retrieve_facilities, get_facility_by_id, \
-                                        update_facility_entry, delete_facility_entry
+                                        update_facility_entry, delete_facility_entry, generate_revenue_by_date, \
+                                        generate_revenue_by_patient
 
 
 def add_facility(ftype='Office'):
@@ -115,3 +116,11 @@ def delete_facility(surgery, office):
                             subclass=ftype)
     flash('{} deleted successfully.'.format(ftype))
     return redirect(url_for('routes.view_facilities'))
+
+def revenue_by_facility(date):
+    revenues, total_revenue = generate_revenue_by_date(db.get_db(), date)
+    return render_template('view_revenues.html', revenues=revenues, total_revenue=total_revenue)
+
+def revenue_by_patient(date):
+    revenues, total_revenue = generate_revenue_by_patient(db.get_db(), date)
+    return render_template('revenue_by_patient.html', invoice_date=date, revenues=revenues, total_revenue=total_revenue)

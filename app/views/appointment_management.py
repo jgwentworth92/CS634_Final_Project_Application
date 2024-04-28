@@ -7,7 +7,8 @@ from icecream import ic
 from app.forms import SearchAppointmentsForm, UpdateCostForm, AppointmentForm, DailyInvoiceForm
 from app.Database import db, total_cost_trigger
 from crud_helpers.appointment_crud import search_appointments_db, update_appointment_cost_db, get_appointment_by_id, \
-    create_appointment, update_appointment_and_related_details, search_daily_insurance_invoices
+    create_appointment, update_appointment_and_related_details, search_daily_insurance_invoices, generate_top_revenue_days, \
+    generate_average_revenue_list
 
 
 def daily_invoices():
@@ -142,3 +143,15 @@ def make_appointment():
         except Exception as e:
             flash(str(e), 'danger')
     return render_template('add.html', form=form)
+
+def top_revenue_days(monthyear):
+    year = monthyear.split("-")[0]
+    month = monthyear.split("-")[1]
+    revenues = generate_top_revenue_days(db.get_db(), year, month)
+    return render_template('top_revenues.html', revenues=revenues)
+
+def average_revenue(beginandend_datevalue):
+    begin_date = beginandend_datevalue.split(":")[0]
+    end_date = beginandend_datevalue.split(":")[1]
+    revenues = generate_average_revenue_list(db.get_db(), begin_date, end_date)
+    return render_template('average_revenues.html', revenues=revenues)

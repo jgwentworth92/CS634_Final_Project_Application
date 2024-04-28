@@ -196,3 +196,101 @@ def delete_facility_entry(session, facility_id, subclass):
     except SQLAlchemyError as e:
         session.rollback()
         raise Exception(f"Database operation failed: {str(e)}")
+    
+
+# ==========================
+# Generate Revenue By Date
+# ==========================
+def generate_revenue_by_date(session, date):
+    revenue_query = text("""
+            SELECT Facility.facility_id, Facility.ftype, Facility.address, SUM(InvoiceDetails.cost) AS daily_revenue
+            FROM Facility
+            JOIN Appointments ON Facility.facility_id = Appointments.facility_id
+            JOIN InvoiceDetails ON Appointments.patient_id = InvoiceDetails.patient_id 
+                                AND Appointments.facility_id = InvoiceDetails.facility_id 
+                                AND Appointments.doctor_id = InvoiceDetails.doctor_id 
+                                AND Appointments.date_time = InvoiceDetails.date_time
+            WHERE DATE(InvoiceDetails.date_time) = :date
+            GROUP BY Facility.facility_id;
+        """)
+    revenue_data = session.execute(revenue_query, {'date': date})
+    result_list = []
+    for revenue_entry in revenue_data:
+        result_list.append({
+                    'facility_id': revenue_entry[0],
+                    'ftype': revenue_entry[1],
+                    'address': revenue_entry[2],
+                    'daily_revenue': revenue_entry[3]
+                })
+    total_revenue_query = text("""
+            SELECT SUM(id.cost) AS total_revenue
+            FROM InvoiceDetails AS id
+            WHERE DATE(id.date_time) = :date;
+        """)
+    total_revenue = session.execute(total_revenue_query, {'date': date})
+    for revenue in total_revenue:
+        total_revenue = revenue[0]
+        break
+    return result_list, total_revenue
+
+# =====================================
+# Generate Revenue By Date and Patients
+# =====================================
+def generate_revenue_by_patient(session, date):
+
+    revenue_by_patients_query = text("""SELECT f.facility_id, f.address, a.patient_id,
+                            SUM(id.cost) AS total_revenue_per_patient
+                            FROM Facility AS f
+                            LEFT JOIN Appointments AS a ON f.facility_id = a.facility_id
+                            LEFT JOIN InvoiceDetails AS id ON a.patient_id = id.patient_id 
+                            AND a.facility_id = id.facility_id 
+                            AND a.doctor_id = id.doctor_id 
+                            AND DATE(a.date_time) = DATE(id.date_time)
+                            WHERE DATE(id.date_time) = :date
+                            GROUP BY f.facility_id, f.address, a.patient_id;
+                        """)
+    revenue_data = session.execute(revenue_by_patients_query, {'date': date})
+    result_dict = {}
+    for revenue_entry in revenue_data:
+        if not revenue_entry[0] in result_dict.keys():
+            result_dict[revenue_entry[0]] = []
+        result_dict[revenue_entry[0]].append({'patient_id':revenue_entry[2],
+                                            'total_revenue_per_patient':revenue_entry[3]})
+
+    revenue_query = text("""SELECT f.facility_id, f.ftype, f.address, SUM(id.cost) AS total_revenue_per_facility
+                            FROM Facility AS f
+                            LEFT JOIN Appointments AS a ON f.facility_id = a.facility_id
+                            LEFT JOIN InvoiceDetails AS id ON a.patient_id = id.patient_id 
+                            AND a.facility_id = id.facility_id 
+                            AND a.doctor_id = id.doctor_id 
+                            AND DATE(a.date_time) = DATE(id.date_time)
+                            WHERE DATE(id.date_time) = :date
+                            GROUP BY f.facility_id, f.address;
+                        """)
+    revenue_data = session.execute(revenue_query, {'date': date})
+    result_list = []
+    for revenue_entry in revenue_data:
+        result_list.append({
+                    'facility_id': revenue_entry[0],
+                    'ftype': revenue_entry[1],
+                    'address': revenue_entry[2],
+                    'daily_revenue': revenue_entry[3],
+                    'patients' : result_dict[revenue_entry[0]]
+                })
+
+    total_revenue_query = text("""SELECT SUM(total_revenue_per_facility) AS total_revenue_all_facilities
+                                FROM (SELECT f.facility_id, f.address, SUM(id.cost) AS total_revenue_per_facility
+                                FROM Facility AS f
+                                LEFT JOIN Appointments AS a ON f.facility_id = a.facility_id
+                                LEFT JOIN InvoiceDetails AS id ON a.patient_id = id.patient_id 
+                                AND a.facility_id = id.facility_id 
+                                AND a.doctor_id = id.doctor_id 
+                                AND DATE(a.date_time) = DATE(id.date_time)
+                                WHERE DATE(id.date_time) = '2024-04-27'
+                                GROUP BY f.facility_id, f.address) AS subquery;
+                                """)
+    total_revenue = session.execute(total_revenue_query, {'date': date})
+    for revenue in total_revenue:
+        total_revenue = revenue[0]
+        break
+    return result_list, total_revenue

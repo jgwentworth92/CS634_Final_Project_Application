@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 import random
 from app.Database import db
-from crud_helpers.appointment_crud import create_appointment, search_appointments_db, update_appointment_cost_db
+from crud_helpers.appointment_crud import create_appointment, search_appointments_db, update_appointment_cost_db, update_total_cost
 from crud_helpers.employee_crud import create_employee, get_all_doctors
 
 from crud_helpers.facility_crud import create_facility, retrieve_facilities
@@ -150,7 +150,7 @@ def populate_appointments():
             patient = random.choice(patients)
             doctor = random.choice(doctors)
             facility = random.choice(facilities)
-            date_time = datetime.now() + timedelta(days=random.randint(1, 60))
+            date_time = datetime.now() - timedelta(days=random.randint(1, 6))
             description = fake.sentence()
 
             create_appointment(session, patient['patient_id'], facility['facility_id'], doctor['EMPID'], date_time, description)
@@ -179,3 +179,4 @@ if __name__ == "__main__":
     populate_patients()
     populate_appointments()
     update_all_appointments_costs()
+    # update_total_cost()

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Average Revenue{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Average Revenue</h1>
+
+    <!-- Section for Office facilities -->
+    {% if revenues %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>InsuranceCompany</th>
+                <th>Average Revenue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for revenue in revenues %}
+            <tr>
+                <td>{{ revenue.insurance_company }}</td>
+                <td>{{ revenue.average_revenue }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No InsuranceCompany Found.</p>
+    {% endif %}
+</div>
+{% endblock %}

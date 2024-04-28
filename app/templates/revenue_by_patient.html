@@ -1,0 +1,40 @@
+<!-- daily_invoice_view.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h1>Revenue Per Facility</h1>
+
+    {% if revenues %}
+        <h3 class="mb-3">Date: {{ invoice_date }} <br> Total Revenue: {{total_revenue}} </h3>
+        {% for revenue in revenues %}
+        <div class="card mb-3">
+            <div class="card-header">
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <h4>Facility ID: {{ revenue['facility_id'] }}, Revenue: ${{ revenue['daily_revenue'] }}</h4>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Charge</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in revenue['patients'] %}
+                            <tr>
+                                <td>{{ patient['patient_id'] }}</td>
+                                <td>${{ patient['total_revenue_per_patient'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="alert alert-warning">No invoices found for the selected date. Please choose another date.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Top 5 Revenue Days{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Top 5 Revenue Days</h1>
+
+    <!-- Section for Office facilities -->
+    {% if revenues %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Total Revenue</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for revenue in revenues %}
+            <tr>
+                <td>{{ revenue.revenue_date }}</td>
+                <td>{{ revenue.total_revenue }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No Invoices Found.</p>
+    {% endif %}
+</div>
+{% endblock %}
