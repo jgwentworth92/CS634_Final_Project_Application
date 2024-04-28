@@ -12,6 +12,35 @@ from app.schemas import EmployeeModel, JobClass, Doctor, Nurse, Admin, OtherHCP,
     InsuranceCompany
 
 
+def select_employee_by_id(session, employee_id):
+    try:
+        # Prepare the SQL query using text() for safe parameter binding
+        query = text("SELECT SSN, fname, lname, salary, hire_date, job_class, address, facility_id \
+                     FROM Employee WHERE EMPID = :employee_id")
+        result = session.execute(query, {'employee_id': employee_id})
+        results_as_dict = result.mappings().all()
+        results_as_dict = dict(results_as_dict[0])
+        print("\n\n", results_as_dict, "\n\n")
+
+        if result is None:
+            return None 
+
+        employee = EmployeeModel(
+            SSN=results_as_dict['SSN'],
+            fname=results_as_dict['fname'],
+            lname=results_as_dict['lname'],
+            salary=results_as_dict['salary'],
+            hire_date=results_as_dict['hire_date'],
+            job_class=results_as_dict['job_class'],
+            address=results_as_dict['address'],
+            facility_id=results_as_dict['facility_id']
+        )
+        return employee
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Failed to fetch insurance company: {str(e)}")
+
 # =========================
 # CRUD operations for Create
 # =========================
@@ -193,3 +222,39 @@ def update_employee_entry(session, employee_id, job_class, employee_data, subcla
 # =========================
 # CRUD operations for Delete
 # =========================
+def delete_employee_entry(session, employee_id, job_class):
+    try:
+        
+
+        if job_class=='Nurse':
+            subclass_delete_query = text("""DELETE FROM Nurse \
+                            WHERE EMPID=:employee_id;
+        """)
+            session.execute(subclass_delete_query, {'employee_id': employee_id})
+        elif job_class=='Doctor':
+            subclass_delete_query = text("""DELETE FROM Doctor \
+                            WHERE EMPID=:employee_id;
+        """)
+            session.execute(subclass_delete_query, {'employee_id': employee_id})
+        elif job_class=='OtherHCP':
+            subclass_delete_query = text("""DELETE FROM OtherHCP \
+                            WHERE EMPID=:employee_id;
+        """)
+            session.execute(subclass_delete_query, {'employee_id': employee_id})
+        elif job_class=='Admin':
+            subclass_delete_query = text("""DELETE FROM Admin  \
+                            WHERE EMPID=:employee_id;
+        """)
+            session.execute(subclass_delete_query, {'employee_id': employee_id})
+
+        employee_delete_query = text("""
+            DELETE FROM Employee WHERE EMPID = :employee_id;
+        """)
+        session.execute(employee_delete_query, {'employee_id': employee_id})
+
+
+        session.commit()
+        print("\n\nDeletion Progress is here\n\n", employee_delete_query)
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Database operation failed: {str(e)}")

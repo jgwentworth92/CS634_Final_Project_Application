@@ -173,6 +173,26 @@ def update_facility_entry(session, facility_id, facility_data, subtype_data):
         raise Exception(f"Failed to update patient: {str(e)}")
 
 
-# =========================
+# ==========================
 # CRUD operations for Delete
-# ========================
+# ==========================
+def delete_facility_entry(session, facility_id, subclass):
+    try:
+        if subclass=='OutpatientSurgery':
+            subclass_delete_query = text("""DELETE FROM OutpatientSurgery \
+                            WHERE facility_id=:facility_id;
+        """)
+            session.execute(subclass_delete_query, {'facility_id': facility_id})
+        elif subclass=='Office':
+            subclass_delete_query = text("""DELETE FROM Office \
+                            WHERE facility_id=:facility_id;
+        """)
+            session.execute(subclass_delete_query, {'facility_id': facility_id})
+        employee_delete_query = text("""
+            DELETE FROM Facility WHERE facility_id = :facility_id;
+        """)
+        session.execute(employee_delete_query, {'facility_id': facility_id})
+        session.commit()
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Database operation failed: {str(e)}")

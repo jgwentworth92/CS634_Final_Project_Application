@@ -5,7 +5,8 @@ from app.Database import db
 from icecream import ic
 from flask import render_template, request, redirect, url_for, flash
 
-from crud_helpers.employee_crud import create_employee, retrieve_all_employees, update_employee_entry
+from crud_helpers.employee_crud import create_employee, retrieve_all_employees, update_employee_entry, \
+                                        select_employee_by_id, delete_employee_entry
 
 
 def add_employee(job_class='Doctor'):
@@ -118,7 +119,11 @@ def update_employee(employee_id, job_class):
             return redirect(url_for('routes.view_employees'))
         except Exception as e:
             flash(f"Database operation failed: {str(e)}", 'error')
-
-
     return render_template('add.html', form=form, job_class=job_class)
 
+def delete_employee(employee_id, job_class):
+    job_class, form_class = find_job_class(job_class)
+    if request.method == 'GET':
+        delete_employee_entry(db.get_db(), employee_id, job_class)
+        flash('Employee with id {} deleted successfully.'.format(employee_id))
+    return redirect(url_for('routes.view_employees'))

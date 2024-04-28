@@ -3,7 +3,8 @@ from flask import flash, redirect, url_for, render_template
 
 from app.forms import OfficeForm, OutpatientSurgeryForm
 from app.Database import db
-from crud_helpers.facility_crud import create_facility, retrieve_facilities, get_facility_by_id, update_facility_entry
+from crud_helpers.facility_crud import create_facility, retrieve_facilities, get_facility_by_id, \
+                                        update_facility_entry, delete_facility_entry
 
 
 def add_facility(ftype='Office'):
@@ -102,3 +103,15 @@ def update_facility(surgery, office):
             return redirect(url_for('routes.view_facilities'))
         
     return render_template('add.html', form=form, ftype=ftype)
+
+def delete_facility(surgery, office):
+    if surgery != 0:
+        facility_id = surgery
+        ftype = 'OutpatientSurgery'
+    else:
+        facility_id = office
+        ftype = 'Office'
+    delete_facility_entry(db.get_db(), facility_id=facility_id, 
+                            subclass=ftype)
+    flash('{} deleted successfully.'.format(ftype))
+    return redirect(url_for('routes.view_facilities'))
