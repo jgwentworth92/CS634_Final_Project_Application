@@ -82,6 +82,17 @@
                                    <li><a  class="dropdown-item"  href="{{ url_for('routes.daily_invoices') }}">View Invoices</a></li>
                             </ul>
                         </li>
+                         <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarManagement" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                               Management Views
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarManagement">
+                                   <li><a  class="dropdown-item"  href="{{ url_for('routes.top_revenue_days' ) }}">top revenue</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.average_revenue' ) }}">AVG by insurance companyt</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.revenue_by_facility' ) }}">Revenue Report by Facility</a></li>
+
+                            </ul>
+                        </li>
                     </ul>
                 </div>
             </nav>

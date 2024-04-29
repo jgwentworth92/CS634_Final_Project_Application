@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form, render_field, render_form_row %}
 
 {% block title %}Average Revenue{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Average Revenue</h1>
+  <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ render_form(form) }}
 
+    </form>
     <!-- Section for Office facilities -->
     {% if revenues %}
     <table class="table table-striped">

@@ -1,9 +1,15 @@
 <!-- daily_invoice_view.html -->
+
+{% from 'bootstrap5/form.html' import render_form, render_field, render_form_row %}
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-5">
     <h1>Revenue Per Facility</h1>
+      <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ render_form(form) }}
 
+    </form>
     {% if revenues %}
         <h3 class="mb-3">Date: {{ invoice_date }} <br> Total Revenue: {{total_revenue}} </h3>
         {% for revenue in revenues %}

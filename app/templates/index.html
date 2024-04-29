@@ -1,67 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>AYYYYYYEE WE GOT TABLES BOI!!!!!!!!!!!!!!!!!!!!!!!</h1>
-    <!-- Revenue By Facility: Date Input -->
-    <div class="form-group">
-        <label for="dateInput">Select Date:</label>
-        <input type="date" id="dateInput" name="dateInput" class="form-control">
-        <button type="button" onclick="redirectToRevenueByFacility()" class="btn btn-primary mt-2">Revenue By Facility</button>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Medical Health System (MHS) Dashboard</h1>
+    <div class="row text-center">
+        <!-- Employee and Facility Management Section -->
+        <div class="col-md-4 mb-4">
+            <h2>Employee and Facility Management</h2>
+            <p>Provides tools for managing employees, medical offices, outpatient surgery facilities, and interactions with insurance companies. This application facilitates the insertion, updating, and viewing of information related to various entities involved in the healthcare provision process.</p>
+        </div>
+
+        <!-- Patient Management Section -->
+        <div class="col-md-4 mb-4">
+            <h2>Patient Management</h2>
+            <p>Enables comprehensive management of patient records, including the creation of new records, scheduling and updating of appointments, and handling of medical billing and procedures. This section ensures efficient patient flow and billing accuracy.</p>
+        </div>
+
+        <!-- Management Reporting Section -->
+        <div class="col-md-4 mb-4">
+            <h2>Management Reporting</h2>
+            <p>Provides essential reporting tools that support management in making informed decisions. This includes generating reports on daily revenues by facility, listing appointments by physician and date, and analyzing the financial performance over selected periods. These capabilities are crucial for strategic planning and financial management.</p>
+        </div>
     </div>
 
-    <hr>
-    
-    <!-- 5 Best Days: Month and Year Input -->
-    <div class="form-group">
-        <label for="monthInput">Select Month:</label>
-        <input type="month" id="monthInput" name="monthInput" class="form-control">
-        <button type="button" onclick="redirectToBestDays()" class="btn btn-primary mt-2">Top Revenue Days</button>
-    </div>
-
-    <hr>
-
-    <!-- Average Daily Revenue: Begin and End Date Input -->
-    <div class="form-group">
-        <label for="beginDate">Begin Date:</label>
-        <input type="date" id="beginDate" name="beginDate" class="form-control">
-        <label for="endDate" class="mt-2">End Date:</label>
-        <input type="date" id="endDate" name="endDate" class="form-control">
-        <button type="button" onclick="redirectToAverageRevenue()" class="btn btn-primary mt-2">Average Daily Revenue</button>
-    </div>
-
-    <hr>
-
-    <div class="form-group">
-        <label for="dateInput_">Select Date:</label>
-        <input type="date" id="dateInput_" name="dateInput_" class="form-control">
-        <button type="button" onclick="redirectToRevenueByPatients()" class="btn btn-primary mt-2">Revenue By Patients</button>
-    </div>
-
-    <script>
-        function redirectToRevenueByFacility() {
-            var dateInputValue = document.getElementById("dateInput").value;
-            window.location.href = "{{ url_for('routes.revenue_by_facility', date='') }}" + dateInputValue;
-        }
-
-    
-        function redirectToBestDays() {
-        var monthInputValue = document.getElementById("monthInput").value;
-        var year = monthInputValue.substring(0, 4); // Extract year from the value
-        var month = monthInputValue.substring(5, 7); // Extract month from the value
-        window.location.href = "{{ url_for('routes.top_revenue_days', monthyear='' ) }}" + monthInputValue;
-        }
-
-        function redirectToAverageRevenue() {
-        var beginDateValue = document.getElementById("beginDate").value;
-        var endDateValue = document.getElementById("endDate").value;
-        var beginandend_datevalue = beginDateValue + ":" + endDateValue
-        window.location.href = "{{ url_for('routes.average_revenue', beginandend_datevalue='' ) }}" + beginandend_datevalue;
-        }
-
-        function redirectToRevenueByPatients() {
-            var dateInputValue = document.getElementById("dateInput_").value;
-            window.location.href = "{{ url_for('routes.revenue_by_patient', date='') }}" + dateInputValue;
-        }
-       
-    </script>
+</div>
 {% endblock %}

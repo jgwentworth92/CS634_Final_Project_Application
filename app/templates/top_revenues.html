@@ -1,3 +1,6 @@
+
+{% from 'bootstrap5/form.html' import render_form, render_field, render_form_row %}
+
 {% extends 'base.html' %}
 
 {% block title %}Top 5 Revenue Days{% endblock %}
@@ -5,7 +8,13 @@
 {% block content %}
 <div class="container mt-4">
     <h1 class="mb-4">Top 5 Revenue Days</h1>
-
+         <form method="POST">
+        <div class="form-group">
+            <label for="monthInput">Select Month:</label>
+            <input type="month" id="monthInput" name="monthInput" class="form-control" value="{{ selected_monthyear }}">
+            <button type="submit" class="btn btn-primary mt-2">Top Revenue Days</button>
+        </div>
+    </form>
     <!-- Section for Office facilities -->
     {% if revenues %}
     <table class="table table-striped">
