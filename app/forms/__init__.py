@@ -3,7 +3,7 @@ from wtforms import StringField, DecimalField, SubmitField, SelectField, DateFie
 from wtforms.fields.datetime import DateTimeField, DateTimeLocalField
 from wtforms.fields.numeric import IntegerField
 from wtforms.fields.simple import TextAreaField
-from wtforms.validators import DataRequired, Optional, NumberRange
+from wtforms.validators import DataRequired, Optional, NumberRange, Regexp, ValidationError
 from app.Database import db
 from crud_helpers.employee_crud import get_all_doctors
 from crud_helpers.facility_crud import retrieve_facilities
@@ -108,9 +108,21 @@ class PatientForm(FlaskForm):
 
 
 class DailyInvoiceForm(FlaskForm):
-    invoice_date = DateField('Invoice Date', format='%Y-%m-%d', validators=[DataRequired()])
+    invoice_date = DateField('Date', format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField('Submit')
+class DateRangeForm(FlaskForm):
+    begin_date = DateField('Begin Date', format='%Y-%m-%d', validators=[DataRequired()])
+    end_date = DateField('End Date', format='%Y-%m-%d', validators=[DataRequired()])
 
+    def validate_end_date(self, field):
+        if field.data < self.begin_date.data:
+            raise ValidationError("End date must be after begin date.")
+
+    submit = SubmitField('Calculate Average Revenue')
+class RevenueDaysForm(FlaskForm):
+    # Regex to validate the input format as YYYY-MM
+    monthyear =  DateField('Date', format='%Y-%m', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 class AppointmentForm(FlaskForm):
     patient_id = SelectField('Patient', coerce=int, validators=[DataRequired()])
@@ -179,3 +191,6 @@ class SearchAppointmentsForm(FlaskForm):
 class UpdateCostForm(FlaskForm):
     cost = DecimalField('New Cost', validators=[DataRequired(), NumberRange(min=0)], places=2, default=0.00)
     submit = SubmitField('Update Cost')
+
+# class RevenueByFacilityForm(FlaskForm):
+#     revenue_date = DateField('Invoice Date', format='%Y-%m-%d', validators=[DataRequired()])

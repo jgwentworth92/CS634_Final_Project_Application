@@ -1,4 +1,3 @@
-<!-- daily_invoice_view.html -->
 {% extends "base.html" %}
 {% block content %}
 <div class="container mt-5">
@@ -28,7 +27,10 @@
             <div class="card-body">
                 {% for invoice_id, invoice_info in insurance_info['invoices'].items() %}
                 <div class="mb-2">
-                    <h4>Invoice ID: {{ invoice_id }}, Total Cost: ${{ invoice_info['invoice_total_cost'] | round(2) }}</h4>
+                    <!-- Calculate average revenue per invoice -->
+                    {% set total_patients = invoice_info['patient_details'] | length %}
+                    {% set average_cost = invoice_info['invoice_total_cost'] / total_patients if total_patients > 0 else 0 %}
+                    <h4>Invoice ID: {{ invoice_id }}, Average Revenue: ${{ average_cost | round(2) }}</h4>
                     <table class="table table-striped">
                         <thead>
                             <tr>

@@ -13,3 +13,4 @@ Flask-Session>=0.4.0
 icecream
 Flask-WTF>=1.1.1
 WTForms-SQLAlchemy
+Faker

@@ -62,6 +62,30 @@ def retrieve_insurance_companies(session):
         session.rollback()
         raise Exception(f"Database operation failed: {str(e)}")
 
+def select_insurance_company_by_id(session, insurance_id):
+    try:
+        # Prepare the SQL query using text() for safe parameter binding
+        query = text("SELECT insurance_id, name, address FROM InsuranceCompany WHERE insurance_id = :id")
+        result = session.execute(query, {'id': insurance_id})
+        results_as_dict = result.mappings().all()
+        results_as_dict = dict(results_as_dict[0])
+
+        # print("\n\nResult: ", type(dict(results_as_dict[0])))
+        if result is None:
+            return None  # Return None if no insurance company is found
+
+        # Convert the result tuple into a Pydantic model
+        insurance_company = InsuranceCompany(
+            insurance_id=results_as_dict['insurance_id'],
+            name=results_as_dict['name'],
+            address=results_as_dict['address']
+        )
+        return insurance_company
+
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Failed to fetch insurance company: {str(e)}")
+
 
 def get_insurance_company_by_id(session, insurance_id):
     try:
@@ -106,3 +130,14 @@ def update_insurance_company_data(session, insurance_id, name, address):
 # =========================
 # CRUD operations for Delete
 # =========================
+def delete_insurance_company_entry(session, insurance_id):
+    try:
+        insurance_delete_query = text("""
+            DELETE FROM InsuranceCompany WHERE insurance_id = :insurance_id;
+        """)
+        session.execute(insurance_delete_query, {'insurance_id': insurance_id})
+        session.commit()
+        print("\n\nDeletion Progress is here\n\n", insurance_delete_query)
+    except SQLAlchemyError as e:
+        session.rollback()
+        raise Exception(f"Database operation failed: {str(e)}")
