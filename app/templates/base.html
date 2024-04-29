@@ -39,7 +39,7 @@
                                 <li><a  class="dropdown-item"  href="{{ url_for('routes.add_employee', job_class='Nurse') }}">Add Nurse</a></li>
                                 <li><a  class="dropdown-item"  href="{{ url_for('routes.add_employee', job_class='Admin') }}">Add Admin</a></li>
                                 <li><a  class="dropdown-item"  href="{{ url_for('routes.add_employee', job_class='OtherHCP') }}">Add Other HCP</a></li>
-                                <li><a  class="dropdown-item"  href="{{ url_for('routes.view_employees') }}">view employees</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.view_employees') }}">View Employees</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -49,7 +49,7 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownFacilities">
                                 <li><a  class="dropdown-item"  href="{{ url_for('routes.add_facility', ftype='Office') }}">Add Office</a></li>
                                 <li><a  class="dropdown-item"  href="{{ url_for('routes.add_facility', ftype='OutpatientSurgery') }}">Add Outpatient Surgery</a></li>
-                                   <li><a  class="dropdown-item"  href="{{ url_for('routes.view_facilities') }}">view</a></li>
+                                   <li><a  class="dropdown-item"  href="{{ url_for('routes.view_facilities') }}">View Facilities</a></li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -86,8 +86,8 @@
                                Management Views
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarManagement">
-                                   <li><a  class="dropdown-item"  href="{{ url_for('routes.top_revenue_days' ) }}">top revenue</a></li>
-                                <li><a  class="dropdown-item"  href="{{ url_for('routes.average_revenue' ) }}">AVG by insurance companyt</a></li>
+                                   <li><a  class="dropdown-item"  href="{{ url_for('routes.top_revenue_days' ) }}">Top Revenue Days</a></li>
+                                <li><a  class="dropdown-item"  href="{{ url_for('routes.average_revenue' ) }}">Average Revenue by Insurance Company</a></li>
                                 <li><a  class="dropdown-item"  href="{{ url_for('routes.revenue_by_facility' ) }}">Revenue Report by Facility</a></li>
                                    <li><a  class="dropdown-item"  href="{{ url_for('routes.daily_invoices') }}">View Invoices</a></li>
 
@@ -103,7 +103,7 @@
     </div>
     {% block content %}{% endblock %}
     <footer>
-        Footer Goes Here
+        
     </footer>
     {% block scripts %}
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
