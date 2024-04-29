@@ -150,7 +150,7 @@ def populate_appointments():
             patient = random.choice(patients)
             doctor = random.choice(doctors)
             facility = random.choice(facilities)
-            date_time = datetime.now() - timedelta(days=random.randint(1, 6))
+            date_time = datetime.now() - timedelta(days=random.randint(1, 30))
             description = fake.sentence()
 
             create_appointment(session, patient['patient_id'], facility['facility_id'], doctor['EMPID'], date_time, description)
