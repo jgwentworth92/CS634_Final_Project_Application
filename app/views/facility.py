@@ -1,7 +1,8 @@
-from flask import flash, redirect, url_for, render_template
+from datetime import datetime
 
+from flask import flash, redirect, url_for, render_template, request, session
 
-from app.forms import OfficeForm, OutpatientSurgeryForm
+from app.forms import OfficeForm, OutpatientSurgeryForm, DailyInvoiceForm
 from app.Database import db
 from crud_helpers.facility_crud import create_facility, retrieve_facilities, get_facility_by_id, \
                                         update_facility_entry, delete_facility_entry, generate_revenue_by_date, \
@@ -117,9 +118,25 @@ def delete_facility(surgery, office):
     flash('{} deleted successfully.'.format(ftype))
     return redirect(url_for('routes.view_facilities'))
 
-def revenue_by_facility(date):
-    revenues, total_revenue = generate_revenue_by_date(db.get_db(), date)
-    return render_template('view_revenues.html', revenues=revenues, total_revenue=total_revenue)
+def revenue_by_facility():
+    form = DailyInvoiceForm(request.form)
+    # Check if there is already a date in session or set today's date as default
+    today = datetime.now().strftime('%Y-%m-%d')
+    if 'revenue_date' not in session:
+        session['revenue_date'] = today
+
+    if request.method == 'POST' and form.validate_on_submit():
+        # Store the selected date in session after validating form submission
+        session['revenue_date'] = form.invoice_date.data.strftime('%Y-%m-%d')
+        return redirect(url_for('routes.revenue_by_facility'))  # Redirect to clear POST data
+
+    # Get the revenue date from session or use today's date as default
+    revenue_date = session.get('revenue_date', today)
+    revenues, total_revenue = generate_revenue_by_patient(db.get_db(), revenue_date)
+
+    return render_template('revenue_by_patient.html', form=form, revenues=revenues,
+                           total_revenue=total_revenue, revenue_date=revenue_date)
+
 
 def revenue_by_patient(date):
     revenues, total_revenue = generate_revenue_by_patient(db.get_db(), date)
