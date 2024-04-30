@@ -286,7 +286,7 @@ def generate_revenue_by_patient(session, date):
                                 AND a.facility_id = id.facility_id 
                                 AND a.doctor_id = id.doctor_id 
                                 AND DATE(a.date_time) = DATE(id.date_time)
-                                WHERE DATE(id.date_time) = '2024-04-27'
+                                WHERE DATE(id.date_time) =  :date
                                 GROUP BY f.facility_id, f.address) AS subquery;
                                 """)
     total_revenue = session.execute(total_revenue_query, {'date': date})
